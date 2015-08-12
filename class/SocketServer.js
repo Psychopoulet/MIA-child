@@ -4,7 +4,6 @@
 	var
 		CST_DEP_Path = require('path'),
 		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, 'Log.js')),
-		CST_DEP_SIKY = require(CST_DEP_Path.join(__dirname, '..', 'node_modules', 'SIKY-API-node', 'api.js')),
 		CST_DEP_SocketIO = require('socket.io');
 		
 // module

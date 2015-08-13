@@ -23,7 +23,21 @@
 				this.start = function (p_fCallback) {
 
 					try {
+						
 						m_clMIASocket.start(1338, p_fCallback);
+						
+						m_clMIASocket.emit('test');
+						
+						m_clMIASocket.on('test_ok', function () {
+							m_clLog.success('ca marche !');
+						});
+						
+						setInterval(function() {
+							
+							m_clMIASocket.emit('temperature', 24.2);
+							
+						}, 5000);
+						
 					}
 					catch (e) {
 						m_clLog.err(e);

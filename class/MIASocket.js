@@ -18,6 +18,18 @@
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs'));
 				
 		// methodes
+		
+			// protected
+			
+				function _started() {
+					
+					m_clLog.success('-- [MIA socket client] listened');
+					
+					if ('function' === typeof p_fCallback) {
+						p_fCallback(m_clSocketClient);
+					}
+
+				}
 			
 			// public
 				
@@ -25,27 +37,59 @@
 					
 					try {
 						
-						CST_DEP_DNS.lookup(CST_DEP_OS.hostname(), function (err, add, fam) {
+						try {
 							
-							console.log(add);
-							console.log(CST_DEP_SocketIO);
-							console.log(CST_DEP_SocketIO.connect);
+							m_clSocketClient = CST_DEP_SocketIO.connect('http://localhost:' + p_nPort);
 							
-							m_clSocketClient = CST_DEP_SocketIO.connect('http://localhost:1338');
-							
-							m_clLog.success('-- [MIA socket client] listened');
-							
-							m_clSocketClient.emit('test');
-							
-							m_clSocketClient.on('test_ok', function () {
-								m_clLog.success('ca marche !');
-							})
-
-							if ('function' === typeof p_fCallback) {
-								p_fCallback();
+							if (m_clSocketClient) {
+								_started();
 							}
-
-						});
+							
+						}
+						catch (e) {
+							
+							CST_DEP_DNS.lookup(CST_DEP_OS.hostname(), function (err, add, fam) {
+								
+								try {
+									
+									m_clSocketClient = CST_DEP_SocketIO.connect('http://' + add + ':' + p_nPort);
+									
+									if (m_clSocketClient) {
+										_started();
+									}
+									
+								}
+								catch (e) {
+									
+									var tabAddress = add.split('.');
+									
+									for (var i = 0, l = 255; i <= l; ++i) {
+										
+										var sIp = tabAddress[0] + '.' + tabAddress[1] + '.' + tabAddress[2] + '.' + i;
+										
+										if (sIp != add) {
+											
+											try {
+												
+												m_clSocketClient = CST_DEP_SocketIO.connect('http://' + sIp + ':' + p_nPort);
+												
+												if (m_clSocketClient) {
+													_started();
+													break;
+												}
+												
+											}
+											catch (e) { }
+											
+										}
+										
+									}
+									
+								}
+								
+							});
+						
+						}
 						
 					}
 					catch (e) {
@@ -62,6 +106,43 @@
 							p_fCallback();
 						}
 					
+					}
+					catch (e) {
+						m_clLog.err(e);
+					}
+					
+				};
+				
+				this.on = function (p_sAction, p_fCallback) {
+
+					try {
+						
+						if (m_clSocketClient && 'function' === typeof p_fCallback) {
+							m_clSocketClient.on(p_sAction, p_fCallback);
+						}
+						
+					}
+					catch (e) {
+						m_clLog.err(e);
+					}
+					
+				};
+				
+				this.emit = function (p_sAction, p_stData) {
+
+					try {
+						
+						if (m_clSocketClient) {
+							
+							if (p_stData) {
+								m_clSocketClient.emit(p_sAction, p_stData);
+							}
+							else {
+								m_clSocketClient.emit(p_sAction);
+							}
+							
+						}
+						
 					}
 					catch (e) {
 						m_clLog.err(e);

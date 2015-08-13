@@ -24,14 +24,20 @@
 
 					try {
 						
-						m_clMIASocket.start(function () {
-
-							if ('function' === typeof p_fCallback) {
-								p_fCallback();
-							}
-
+						m_clMIASocket.start(1338, p_fCallback);
+						
+						m_clMIASocket.emit('test');
+						
+						m_clMIASocket.on('test_ok', function () {
+							m_clLog.success('ca marche !');
 						});
-
+						
+						setInterval(function() {
+							
+							m_clMIASocket.emit('temperature', 24.2);
+							
+						}, 5000);
+						
 					}
 					catch (e) {
 						m_clLog.err(e);
@@ -43,13 +49,13 @@
 
 					try {
 
-						m_clMIASocket.stop(function () {
+						if ('function' === typeof p_fCallback) {
+							p_fCallback();
+						}
 
-							if ('function' === typeof p_fCallback) {
-								p_fCallback();
-							}
-
-						});
+						return;
+						
+						m_clMIASocket.stop(p_fCallback);
 
 					}
 					catch (e) {

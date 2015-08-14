@@ -28,20 +28,14 @@
 						
 						m_clMIASocket.start(1338, p_fCallback);
 						
-						m_clMIASocket.emit('test');
-						
-						m_clMIASocket.on('test_ok', function () {
-							m_clLog.success('ca marche !');
+						m_clW3VoicesManager.playRandomCharacter('ready', function() {
+							
+							setInterval(function() {
+								m_clMIASocket.emit('temperature', 24.2);
+							}, 5000);
+							
 						});
-						
-						console.log(m_clW3VoicesManager.playRandomCharacter('ready'));
 
-						setInterval(function() {
-							
-							m_clMIASocket.emit('temperature', 24.2);
-							
-						}, 5000);
-						
 					}
 					catch (e) {
 						m_clLog.err(e);

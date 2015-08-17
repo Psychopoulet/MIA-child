@@ -4,7 +4,7 @@
 	var
 		CST_DEP_Path = require('path'),
 		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, 'Log.js')),
-		CST_DEP_W3VoicesManager = require(CST_DEP_Path.join(__dirname, '..', 'node_modules', 'W3VoicesManager', 'W3VoicesManager.js')),
+		CST_DEP_W3VoicesManager = require('W3VoicesManager'),
 		CST_DEP_MIASocket = require(CST_DEP_Path.join(__dirname, 'MIASocket.js'));
 		
 // module
@@ -25,10 +25,14 @@
 				this.start = function (p_fCallback) {
 
 					try {
+
+						m_clW3VoicesManager.playWarning('human', 'upgradecomplete');
+
+						return;
 						
 						m_clMIASocket.start(1338, p_fCallback);
 						
-						m_clW3VoicesManager.playRandomCharacter('ready', function() {
+						m_clW3VoicesManager.playRandomCharacterAction('ready', function() {
 							
 							setInterval(function() {
 								m_clMIASocket.emit('temperature', 24.2);

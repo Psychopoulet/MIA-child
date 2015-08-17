@@ -26,13 +26,9 @@
 
 					try {
 
-						m_clW3VoicesManager.playWarning('human', 'upgradecomplete');
-
-						return;
-						
 						m_clMIASocket.start(1338, p_fCallback);
 						
-						m_clW3VoicesManager.playRandomCharacterAction('ready', function() {
+						m_clW3VoicesManager.playRandomAction('ready', function() {
 							
 							setInterval(function() {
 								m_clMIASocket.emit('temperature', 24.2);

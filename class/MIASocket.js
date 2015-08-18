@@ -19,78 +19,24 @@
 				
 		// methodes
 		
-			// protected
-			
-				function _started() {
-					
-					m_clLog.success('-- [MIA socket client] listened');
-					
-					if ('function' === typeof p_fCallback) {
-						p_fCallback(m_clSocketClient);
-					}
-
-				}
-			
 			// public
 				
-				this.start = function (p_nPort, p_clHTTPServer) {
+				this.start = function (p_nPort, p_fCallback) {
 					
 					try {
 						
-						try {
+						m_clSocketClient = CST_DEP_SocketIO.connect('http://localhost:' + p_nPort);
+						
+						if (m_clSocketClient) {
+									
+							m_clLog.success('-- [MIA socket client] listened');
 							
-							m_clSocketClient = CST_DEP_SocketIO.connect('http://localhost:' + p_nPort);
-							
-							if (m_clSocketClient) {
-								_started();
+							if ('function' === typeof p_fCallback) {
+								p_fCallback(m_clSocketClient);
 							}
-							
+
 						}
-						catch (e) {
 							
-							CST_DEP_DNS.lookup(CST_DEP_OS.hostname(), function (err, add, fam) {
-								
-								try {
-									
-									m_clSocketClient = CST_DEP_SocketIO.connect('http://' + add + ':' + p_nPort);
-									
-									if (m_clSocketClient) {
-										_started();
-									}
-									
-								}
-								catch (e) {
-									
-									var tabAddress = add.split('.');
-									
-									for (var i = 0, l = 255; i <= l; ++i) {
-										
-										var sIp = tabAddress[0] + '.' + tabAddress[1] + '.' + tabAddress[2] + '.' + i;
-										
-										if (sIp != add) {
-											
-											try {
-												
-												m_clSocketClient = CST_DEP_SocketIO.connect('http://' + sIp + ':' + p_nPort);
-												
-												if (m_clSocketClient) {
-													_started();
-													break;
-												}
-												
-											}
-											catch (e) { }
-											
-										}
-										
-									}
-									
-								}
-								
-							});
-						
-						}
-						
 					}
 					catch (e) {
 						m_clLog.err(e);
@@ -131,7 +77,7 @@
 				this.emit = function (p_sAction, p_stData) {
 
 					try {
-						
+
 						if (m_clSocketClient) {
 							
 							if (p_stData) {

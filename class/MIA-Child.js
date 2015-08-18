@@ -19,6 +19,49 @@
 				m_clMIASocket = new CST_DEP_MIASocket();
 				
 		// methodes
+
+			// protected
+
+				function _runW3() {
+
+					m_clMIASocket.on('w3', function(data) {
+
+						if (data.action) {
+
+							switch (data.action) {
+
+								case 'play_music' :
+
+									if (data.race && data.music) {
+										m_clW3VoicesManager.playMusic(data.race, data.music);
+									}
+
+								break;
+
+								case 'get_musics' :
+
+									m_clMIASocket.emit('w3', {
+										action : 'get_musics',
+										musics : m_clW3VoicesManager.getMusics()
+									});
+
+								break;
+
+							}
+
+						}
+
+					});
+
+				}
+
+				function _runTemperature() {
+
+					setInterval(function() {
+						m_clMIASocket.emit('temperature', 24.2);
+					}, 5000);
+
+				}
 			
 			// public
 				
@@ -26,14 +69,15 @@
 
 					try {
 
-						m_clMIASocket.start(1338, p_fCallback);
-						
-						m_clW3VoicesManager.playRandomAction('ready', function() {
-							
-							setInterval(function() {
-								m_clMIASocket.emit('temperature', 24.2);
-							}, 5000);
-							
+						m_clMIASocket.start(1338, function () {
+
+							m_clW3VoicesManager.playRandomAction('ready', function() {
+								
+								_runW3();
+								_runTemperature();
+
+							});
+
 						});
 
 					}

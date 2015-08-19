@@ -13,7 +13,7 @@
 		
 		// attributes
 			
-			var m_stSIKYUser,
+			var m_clThis = this,
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
 				m_clW3VoicesManager = new CST_DEP_W3VoicesManager(),
 				m_clMIASocket = new CST_DEP_MIASocket();
@@ -22,30 +22,70 @@
 
 			// protected
 
-				function _runW3() {
+				function _runW3(socket) {
 
-					m_clMIASocket.on('w3', function(data) {
+					socket.on('w3', function(data) {
 
 						if (data.action) {
 
 							switch (data.action) {
 
-								case 'play_music' :
+								// races
 
-									if (data.race && data.music) {
-										m_clW3VoicesManager.playMusic(data.race, data.music);
-									}
+									case 'get_races' :
 
-								break;
+										socket.emit('w3', {
+											action : 'get_musics',
+											musics : m_clW3VoicesManager.getRaces()
+										});
 
-								case 'get_musics' :
+									break;
 
-									m_clMIASocket.emit('w3', {
-										action : 'get_musics',
-										musics : m_clW3VoicesManager.getMusics()
-									});
+								// musics
 
-								break;
+									case 'get_musics' :
+
+										if (!data.race) {
+
+											socket.emit('w3', {
+												error : 'race missing'
+											});
+
+										}
+										else {
+
+											socket.emit('w3', {
+												action : 'get_musics',
+												musics : m_clW3VoicesManager.getMusics(data.race)
+											});
+
+										}
+
+									break;
+
+									case 'play_music' :
+
+										if (!data.race) {
+
+											socket.emit('w3', {
+												error : 'race missing'
+											});
+
+										}
+										else if (!data.music) {
+
+											socket.emit('w3', {
+												error : 'music missing'
+											});
+
+										}
+										else {
+
+											m_clW3VoicesManager.playMusic(data.race, data.music);
+
+										}
+
+									break;
 
 							}
 
@@ -55,10 +95,10 @@
 
 				}
 
-				function _runTemperature() {
+				function _runTemperature(socket) {
 
 					setInterval(function() {
-						m_clMIASocket.emit('temperature', 24.2);
+						socket.emit('temperature', 24.2);
 					}, 5000);
 
 				}
@@ -71,12 +111,12 @@
 
 						m_clMIASocket.start(1338, function () {
 
-							m_clW3VoicesManager.playRandomAction('ready', function() {
-								
-								_runW3();
-								_runTemperature();
+							// m_clW3VoicesManager.playRandomAction('ready');
 
-							});
+						}, function (socket) {
+
+							_runW3(socket);
+							_runTemperature(socket);
 
 						});
 
@@ -84,6 +124,8 @@
 					catch (e) {
 						m_clLog.err(e);
 					}
+					
+					return m_clThis;
 					
 				};
 				
@@ -103,6 +145,8 @@
 					catch (e) {
 						m_clLog.err(e);
 					}
+					
+					return m_clThis;
 					
 				};
 				

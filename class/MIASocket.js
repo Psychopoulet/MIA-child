@@ -14,33 +14,44 @@
 	
 		// attributes
 			
-			var m_clSocketClient,
+			var m_clThis = this,
+				m_clSocketClient,
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs'));
 				
 		// methodes
 		
 			// public
 				
-				this.start = function (p_nPort, p_fCallback) {
+				this.start = function (p_nPort, p_fCallback, p_fCallbackOnConnection) {
 					
 					try {
 						
 						m_clSocketClient = CST_DEP_SocketIO.connect('http://localhost:' + p_nPort);
-						
-						if (m_clSocketClient) {
-									
-							m_clLog.success('-- [MIA socket client] listened');
-							
-							if ('function' === typeof p_fCallback) {
-								p_fCallback(m_clSocketClient);
+
+						if ('function' === typeof p_fCallback) {
+							p_fCallback();
+						}
+
+						m_clSocketClient.on('connect', function () {
+
+							m_clLog.success('-- [MIA socket] connected');
+
+							if ('function' === typeof p_fCallbackOnConnection) {
+								p_fCallbackOnConnection(m_clSocketClient);
 							}
 
-						}
-							
+							m_clSocketClient.on('disconnect', function () {
+								m_clLog.info('-- [MIA socket] disconnected');
+							});
+
+						});
+
 					}
 					catch (e) {
 						m_clLog.err(e);
 					}
+					
+					return m_clThis;
 					
 				};
 				
@@ -57,42 +68,7 @@
 						m_clLog.err(e);
 					}
 					
-				};
-				
-				this.on = function (p_sAction, p_fCallback) {
-
-					try {
-						
-						if (m_clSocketClient && 'function' === typeof p_fCallback) {
-							m_clSocketClient.on(p_sAction, p_fCallback);
-						}
-						
-					}
-					catch (e) {
-						m_clLog.err(e);
-					}
-					
-				};
-				
-				this.emit = function (p_sAction, p_stData) {
-
-					try {
-
-						if (m_clSocketClient) {
-							
-							if (p_stData) {
-								m_clSocketClient.emit(p_sAction, p_stData);
-							}
-							else {
-								m_clSocketClient.emit(p_sAction);
-							}
-							
-						}
-						
-					}
-					catch (e) {
-						m_clLog.err(e);
-					}
+					return m_clThis;
 					
 				};
 				

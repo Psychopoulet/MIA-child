@@ -4,7 +4,7 @@
 	var
 		CST_DEP_FileStream = require('fs'),
 		CST_DEP_Path = require('path'),
-		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, 'Log.js')),
+		CST_DEP_Log = require('logs'),
 		CST_DEP_MIA_CHILD = require(CST_DEP_Path.join(__dirname, 'MIA-Child.js'));
 		
 // module

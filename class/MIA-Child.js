@@ -111,7 +111,7 @@
 
 						m_clMIASocket.start(1338, function () {
 
-							// m_clW3VoicesManager.playRandomAction('ready');
+							m_clW3VoicesManager.playRandomAction('ready');
 
 						}, function (socket) {
 

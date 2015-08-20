@@ -109,7 +109,7 @@
 
 					try {
 
-						/*m_clMIASocket.start(1338, function () {
+						m_clMIASocket.start(1338, function () {
 
 							m_clW3VoicesManager.playRandomAction('ready');
 
@@ -118,7 +118,7 @@
 							_runW3(socket);
 							_runTemperature(socket);
 
-						});*/
+						});
 
 					}
 					catch (e) {

@@ -3,7 +3,7 @@
 	
 	var
 		CST_DEP_Path = require('path'),
-		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, 'Log.js')),
+		CST_DEP_Log = require('logs'),
 		CST_DEP_W3VoicesManager = require('W3VoicesManager'),
 		CST_DEP_MIASocket = require(CST_DEP_Path.join(__dirname, 'MIASocket.js'));
 		
@@ -111,7 +111,7 @@
 
 						m_clMIASocket.start(1338, function () {
 
-							// m_clW3VoicesManager.playRandomAction('ready');
+							m_clW3VoicesManager.playRandomAction('ready');
 
 						}, function (socket) {
 

@@ -109,8 +109,6 @@
 
 					try {
 
-						m_clW3VoicesManager.downloadAll();
-
 						m_clMIASocket.start(1338, function () {
 
 							m_clW3VoicesManager.playRandomAction('ready');

@@ -3,6 +3,7 @@
 	
 	var
 		CST_DEP_Path = require('path'),
+		CST_DEP_FileSync = require('fs'),
 		CST_DEP_Log = require('logs'),
 		CST_DEP_W3VoicesManager = require('W3VoicesManager'),
 		CST_DEP_MIASocket = require(CST_DEP_Path.join(__dirname, 'MIASocket.js'));
@@ -19,89 +20,6 @@
 				m_clMIASocket = new CST_DEP_MIASocket();
 				
 		// methodes
-
-			// protected
-
-				function _runW3(socket) {
-
-					socket.on('w3', function(data) {
-
-						if (data.action) {
-
-							switch (data.action) {
-
-								// races
-
-									case 'get_races' :
-
-										socket.emit('w3', {
-											action : 'get_musics',
-											musics : m_clW3VoicesManager.getRaces()
-										});
-
-									break;
-
-								// musics
-
-									case 'get_musics' :
-
-										if (!data.race) {
-
-											socket.emit('w3', {
-												error : 'race missing'
-											});
-
-										}
-										else {
-
-											socket.emit('w3', {
-												action : 'get_musics',
-												musics : m_clW3VoicesManager.getMusics(data.race)
-											});
-
-										}
-
-									break;
-
-									case 'play_music' :
-
-										if (!data.race) {
-
-											socket.emit('w3', {
-												error : 'race missing'
-											});
-
-										}
-										else if (!data.music) {
-
-											socket.emit('w3', {
-												error : 'music missing'
-											});
-
-										}
-										else {
-
-											m_clW3VoicesManager.playMusic(data.race, data.music);
-
-										}
-
-									break;
-
-							}
-
-						}
-
-					});
-
-				}
-
-				function _runTemperature(socket) {
-
-					setInterval(function() {
-						socket.emit('temperature', 24.2);
-					}, 5000);
-
-				}
 			
 			// public
 				
@@ -109,16 +27,19 @@
 
 					try {
 
-						m_clW3VoicesManager.downloadAll();
-
 						m_clMIASocket.start(1338, function () {
 
-							m_clW3VoicesManager.playRandomAction('ready');
+							m_clW3VoicesManager.playActionFromRandomCharacter('ready');
 
 						}, function (socket) {
 
-							_runW3(socket);
-							_runTemperature(socket);
+							var sPluginsPath = CST_DEP_Path.join(__dirname, '..', 'plugins');
+
+							CST_DEP_FileSync.readdirSync(sPluginsPath).forEach(function (file) {
+
+								require(CST_DEP_Path.join(sPluginsPath, file))(socket, m_clW3VoicesManager)
+
+							});
 
 						});
 

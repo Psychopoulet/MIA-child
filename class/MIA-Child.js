@@ -28,17 +28,15 @@
 					try {
 
 						m_clMIASocket.start(1338, function () {
-
 							m_clW3VoicesManager.playActionFromRandomCharacter('ready');
-
-						}, function (socket) {
+						});
+						
+						m_clMIASocket.onConnection(function (socket) {
 
 							var sPluginsPath = CST_DEP_Path.join(__dirname, '..', 'plugins');
 
 							CST_DEP_FileSync.readdirSync(sPluginsPath).forEach(function (file) {
-
-								require(CST_DEP_Path.join(sPluginsPath, file))(socket, m_clW3VoicesManager)
-
+								require(CST_DEP_Path.join(sPluginsPath, file))(socket, m_clW3VoicesManager);
 							});
 
 						});
@@ -71,6 +69,10 @@
 					
 					return m_clThis;
 					
+				};
+				
+				this.getVersion = function () {
+					return '0.0.1'
 				};
 				
 	};

@@ -4,9 +4,9 @@
 // module
 	
 	module.exports = function (p_clSocket, p_clW3VoicesManager) {
-
+		
 		p_clSocket.on('w3', function(data) {
-
+			
 			if (data.action) {
 
 				switch (data.action) {
@@ -61,7 +61,7 @@
 
 							}
 							else {
-
+								
 								p_clW3VoicesManager.playMusic(data.race, data.music);
 
 							}

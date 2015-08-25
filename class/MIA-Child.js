@@ -27,9 +27,7 @@
 
 					try {
 
-						m_clMIASocket.start(1338, function () {
-							m_clW3VoicesManager.playActionFromRandomCharacter('ready');
-						});
+						m_clMIASocket.start(1338);
 						
 						m_clMIASocket.onConnection(function (socket) {
 

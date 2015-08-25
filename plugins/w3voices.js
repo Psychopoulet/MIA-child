@@ -6,18 +6,20 @@
 	module.exports = function (p_clSocket, p_clW3VoicesManager) {
 		
 		p_clSocket.on('w3', function(data) {
-			
-			if (data.action) {
 
-				switch (data.action) {
+			var sRace, sCharacter, sAction, sActionCode;
+
+			if (data.order) {
+
+				switch (data.order) {
 
 					// races
 
 						case 'get_races' :
 
 							p_clSocket.emit('w3', {
-								action : 'get_musics',
-								musics : p_clW3VoicesManager.getRaces()
+								order : 'get_races',
+								races : p_clW3VoicesManager.getRaces()
 							});
 
 						break;
@@ -36,7 +38,7 @@
 							else {
 
 								p_clSocket.emit('w3', {
-									action : 'get_musics',
+									order : 'get_musics',
 									musics : p_clW3VoicesManager.getMusics(data.race)
 								});
 
@@ -61,8 +63,9 @@
 
 							}
 							else {
-								
-								p_clW3VoicesManager.playMusic(data.race, data.music);
+
+								sRace = ('random' === data.race) ? p_clW3VoicesManager.getRandomRace() : data.race;
+								p_clW3VoicesManager.playMusic(sRace, data.music);
 
 							}
 
@@ -82,7 +85,7 @@
 							else {
 
 								p_clSocket.emit('w3', {
-									action : 'get_warnings',
+									order : 'get_warnings',
 									warnings : p_clW3VoicesManager.getWarnings(data.race)
 								});
 
@@ -108,7 +111,8 @@
 							}
 							else {
 
-								p_clW3VoicesManager.playWarning(data.race, data.warning);
+								sRace = ('random' === data.race) ? p_clW3VoicesManager.getRandomRace() : data.race;
+								p_clW3VoicesManager.playWarning(sRace, data.warning);
 
 							}
 
@@ -128,7 +132,7 @@
 							else {
 
 								p_clSocket.emit('w3', {
-									action : 'get_characters',
+									order : 'get_characters',
 									characters : p_clW3VoicesManager.getCharacters(data.race)
 								});
 
@@ -157,7 +161,7 @@
 								else {
 
 									p_clSocket.emit('w3', {
-										action : 'get_actions',
+										order : 'get_actions',
 										actions : p_clW3VoicesManager.getActions(data.race, data.character)
 									});
 
@@ -165,26 +169,9 @@
 
 							break;
 
-							case 'play_action_from_random_character' :
-
-								if (!data.action) {
-
-									p_clSocket.emit('w3', {
-										error : 'action missing'
-									});
-
-								}
-								else {
-
-									p_clW3VoicesManager.playActionFromRandomCharacter(data.action);
-
-								}
-
-							break;
-
 							// action codes
 
-								case 'get_action_codes' :
+								case 'get_actioncodes' :
 
 									if (!data.race) {
 
@@ -210,7 +197,7 @@
 									else {
 
 										p_clSocket.emit('w3', {
-											action : 'get_action_codes',
+											order : 'get_actioncodes',
 											action_codes : p_clW3VoicesManager.getActionCodes(data.race, data.character, data.action)
 										});
 
@@ -218,7 +205,7 @@
 
 								break;
 
-								case 'play_action_code' :
+								case 'play_actioncode' :
 
 									if (!data.race) {
 
@@ -241,47 +228,21 @@
 										});
 
 									}
-									else if (!data.code) {
+									else if (!data.actioncode) {
 
 										p_clSocket.emit('w3', {
-											error : 'code missing'
+											error : 'actioncode missing'
 										});
 
 									}
 									else {
 
-										p_clW3VoicesManager.playActionCode(data.race, data.character, data.action, data.code);
+										sRace = ('random' === data.race) ? p_clW3VoicesManager.getRandomRace() : data.race;
+										sCharacter = ('random' === data.character) ? p_clW3VoicesManager.getRandomCharacter(sRace) : data.character;
+										sAction = ('random' === data.action) ? p_clW3VoicesManager.getRandomAction(sRace, sCharacter) : data.action;
+										sActionCode = ('random' === data.actioncode) ? p_clW3VoicesManager.getRandomActionCode(sRace, sCharacter, sAction) : data.actioncode;
 
-									}
-
-								break;
-
-								case 'play_randomed_action_code' :
-
-									if (!data.race) {
-
-										p_clSocket.emit('w3', {
-											error : 'race missing'
-										});
-
-									}
-									else if (!data.character) {
-
-										p_clSocket.emit('w3', {
-											error : 'character missing'
-										});
-
-									}
-									else if (!data.action) {
-
-										p_clSocket.emit('w3', {
-											error : 'action missing'
-										});
-
-									}
-									else {
-
-										p_clW3VoicesManager.playRandomedActionCode(data.race, data.character, data.action);
+										p_clW3VoicesManager.playActionCode(sRace, sCharacter, sAction, sActionCode);
 
 									}
 

@@ -4,8 +4,7 @@
 	var
 		CST_DEP_Path = require('path'),
 		CST_DEP_FileSync = require('fs'),
-		CST_DEP_Log = require('logs'),
-		CST_DEP_W3VoicesManager = require('W3VoicesManager'),
+		CST_DEP_Q = require('q'),
 		CST_DEP_MIASocket = require(CST_DEP_Path.join(__dirname, 'MIASocket.js'));
 		
 // module
@@ -14,59 +13,74 @@
 		
 		// attributes
 			
-			var m_clThis = this,
-				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
-				m_clW3VoicesManager = new CST_DEP_W3VoicesManager(),
+			var
+				m_clThis = this,
 				m_clMIASocket = new CST_DEP_MIASocket();
 				
 		// methodes
 			
 			// public
 				
-				this.start = function (p_fCallback) {
+				this.start = function () {
 
-					try {
+					var deferred = CST_DEP_Q.defer();
 
-						m_clMIASocket.start(1338);
+						try {
+
+							m_clMIASocket.start(1338)
+								.then(function() {
+
+									m_clMIASocket.onConnection(function (socket) {
+
+										var sPluginsPath = CST_DEP_Path.join(__dirname, '..', 'plugins');
+
+										CST_DEP_FileSync.readdirSync(sPluginsPath).forEach(function (file) {
+											require(CST_DEP_Path.join(sPluginsPath, file))(socket);
+										});
+
+									});
+
+									deferred.resolve();
+
+								})
+								.catch(deferred.reject);
+							
+						}
+						catch (e) {
+							if (e.message) {
+								deferred.reject(e.message);
+							}
+							else {
+								deferred.reject(e);
+							}
+						}
 						
-						m_clMIASocket.onConnection(function (socket) {
+					return deferred.promise;
 
-							var sPluginsPath = CST_DEP_Path.join(__dirname, '..', 'plugins');
-
-							CST_DEP_FileSync.readdirSync(sPluginsPath).forEach(function (file) {
-								require(CST_DEP_Path.join(sPluginsPath, file))(socket, m_clW3VoicesManager);
-							});
-
-						});
-
-					}
-					catch (e) {
-						m_clLog.err(e);
-					}
-					
-					return m_clThis;
-					
 				};
 				
-				this.stop = function (p_fCallback) {
+				this.stop = function () {
 
-					try {
+					var deferred = CST_DEP_Q.defer();
 
-						if ('function' === typeof p_fCallback) {
-							p_fCallback();
+						try {
+
+							m_clMIASocket.stop()
+								.then(deferred.resolve)
+								.catch(deferred.reject);
+
 						}
-
-						return;
+						catch (e) {
+							if (e.message) {
+								deferred.reject(e.message);
+							}
+							else {
+								deferred.reject(e);
+							}
+						}
 						
-						m_clMIASocket.stop(p_fCallback);
+					return deferred.promise;
 
-					}
-					catch (e) {
-						m_clLog.err(e);
-					}
-					
-					return m_clThis;
-					
 				};
 				
 				this.getVersion = function () {

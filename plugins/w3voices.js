@@ -2,6 +2,8 @@
 // dépendances
 	
 	var
+		CST_DEP_Path = require('path'),
+		CST_DEP_Log = require('logs'),
 		CST_DEP_W3VoicesManager = require('W3VoicesManager');
 		
 // module
@@ -11,8 +13,8 @@
 		// attributes
 			
 			var
-				m_clW3VoicesManager = new CST_DEP_W3VoicesManager(),
-				m_clMIASocket = new CST_DEP_MIASocket();
+				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs', 'plugins', 'w3voices')),
+				m_clW3VoicesManager = new CST_DEP_W3VoicesManager();
 				
 		// constructor
 			
@@ -89,6 +91,8 @@
 										})
 										.catch(function (e) {
 
+											m_clLog.err(e);
+
 											p_clSocket.emit('w3', {
 												error : e
 											});
@@ -152,6 +156,8 @@
 
 										})
 										.catch(function (e) {
+
+											m_clLog.err(e);
 
 											p_clSocket.emit('w3', {
 												error : e
@@ -300,6 +306,8 @@
 
 												})
 												.catch(function (e) {
+
+													m_clLog.err(e);
 
 													p_clSocket.emit('w3', {
 														error : e

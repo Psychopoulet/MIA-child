@@ -21,13 +21,13 @@
 			
 			// public
 				
-				this.start = function () {
+				this.start = function (p_stConf) {
 
 					var deferred = CST_DEP_Q.defer();
 
 						try {
 
-							m_clMIASocket.start(1338)
+							m_clMIASocket.start(p_stConf.miaip, p_stConf.miaport)
 								.then(function() {
 
 									m_clMIASocket.onConnection(function (socket) {

@@ -17,53 +17,12 @@
 			var
 				m_clThis = this,
 				m_sCommandFile = CST_DEP_Path.join(__dirname, '../', 'command.tmp'),
-				m_sLaunchType = process.argv.slice(2)[0],
+				m_tabArgs = process.argv.slice(2),
+				m_sLaunchType = m_tabArgs[0],
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
-				m_sConfFile = CST_DEP_Path.join(__dirname, '..', 'conf.json');
+				m_clMIAChild = new CST_DEP_MIA_CHILD();
 				
 		// methodes
-			
-			// protected
-
-				function _getConf() {
-					return JSON.parse(CST_DEP_FileSystem.readFileSync(m_sConfFile), 'utf8');
-				}
-			
-				function _setConf(p_stConf) {
-
-					var deferred = CST_DEP_Q.defer();
-
-						try {
-
-							CST_DEP_FileSystem.writeFile(m_sConfFile, JSON.stringify(p_stConf), 'utf8', function () {
-
-								if (err) {
-									if (err.message) {
-										deferred.reject(err.message);
-									}
-									else {
-										deferred.reject(err);
-									}
-								}
-								else {
-									deferred.resolve();
-								}
-
-							});
-
-						}
-						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
-						}
-						
-					return deferred.promise;
-
-				}
 			
 			// public
 
@@ -74,7 +33,7 @@
 						try {
 
 							if (CST_DEP_FileSystem.existsSync(m_sCommandFile)) {
-								deferred.reject('An another server is already running.');
+								deferred.reject('An another client is already running.');
 							}
 							else {
 
@@ -92,7 +51,7 @@
 
 										m_clLog.log('[START ' + process.pid + ']');
 
-										new CST_DEP_MIA_CHILD().start(_getConf())
+										m_clMIAChild.start()
 											.then(deferred.resolve)
 											.catch(deferred.reject);
 
@@ -142,8 +101,6 @@
 
 										CST_DEP_FileSystem.unlink(m_sCommandFile, function (err) {
 
-											var sPID;
-											
 											if (err) {
 												if (err.message) {
 													deferred.reject(err.message);
@@ -154,7 +111,7 @@
 											}
 											else {
 
-												sPID = p_sData.toString();
+												var sPID = p_sData.toString();
 
 												try {
 													process.kill(sPID);
@@ -200,8 +157,8 @@
 							console.log('--start | -S : start MIA');
 							console.log('--end | -E : stop MIA');
 							console.log('--restart | -R : restart MIA');
-							console.log('--webport | -WP : configure the watched port for the web interface');
-							console.log('--childrenport | -CP : configure the watched port for the children communication');
+							console.log('--miaip | -MI : configure the MIA IP');
+							console.log('--miaport | -MP : configure the MIA port');
 
 						}
 						catch (e) {
@@ -219,16 +176,20 @@
 				
 				this.setMIAIP = function () {
 
-					var deferred = CST_DEP_Q.defer(), stConf, tabArg;
+					var deferred = CST_DEP_Q.defer();
 
 						try {
 
-							stConf = _getConf();
-							tabArg = process.argv.slice(2);
+							if (m_tabArgs[1]) {
 
-							stConf.miaip = (tabArg[1]) ? tabArg[1] : stConf.miaip;
+								m_clMIAChild.setMIAIP(m_tabArgs[1])
+									.then(deferred.resolve)
+									.catch(deferred.reject);
 
-							_setConf(stConf);
+							}
+							else {
+								deferred.reject('\'IP\' missing');
+							}
 
 						}
 						catch (e) {
@@ -246,16 +207,20 @@
 				
 				this.setMIAPort = function () {
 
-					var deferred = CST_DEP_Q.defer(), stConf, tabArg;
+					var deferred = CST_DEP_Q.defer();
 
 						try {
 
-							stConf = _getConf();
-							tabArg = process.argv.slice(2);
+							if (m_tabArgs[1]) {
 
-							stConf.miaport = (tabArg[1]) ? tabArg[1] : stConf.miaport;
+								m_clMIAChild.setMIAPort(m_tabArgs[1])
+									.then(deferred.resolve)
+									.catch(deferred.reject);
 
-							_setConf(stConf);
+							}
+							else {
+								deferred.reject('\'port\' missing');
+							}
 
 						}
 						catch (e) {
@@ -277,7 +242,7 @@
 				
 				case '--version' :
 				case '-V' :
-					console.log(new CST_DEP_MIA_CHILD().getVersion());
+					console.log(m_clMIAChild.getVersion());
 				break;
 				
 				case '--help' :

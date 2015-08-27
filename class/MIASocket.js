@@ -3,8 +3,8 @@
 	
 	var
 		CST_DEP_Path = require('path'),
-		CST_DEP_Log = require('logs'),
 		CST_DEP_Q = require('q'),
+		CST_DEP_Log = require('logs'),
 		CST_DEP_SocketIO = require('socket.io-client');
 		
 // module
@@ -13,8 +13,8 @@
 	
 		// attributes
 			
-			var m_clThis = this,
-				m_clSocketClient,
+			var
+				m_clThis = this,
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
 				m_tabOnConnection = [];
 				
@@ -28,7 +28,7 @@
 
 						try {
 
-							m_clSocketClient = CST_DEP_SocketIO.connect('http://' + p_sIP + ':' + p_nPort);
+							var clSocketClient = CST_DEP_SocketIO.connect('http://' + p_sIP + ':' + p_nPort);
 
 							m_clThis.onConnection(function (socket) {
 
@@ -40,10 +40,10 @@
 
 							});
 							
-							m_clSocketClient.on('connect', function () {
+							clSocketClient.on('connect', function () {
 
 								m_tabOnConnection.forEach(function (fOnConnection) {
-									fOnConnection(m_clSocketClient);
+									fOnConnection(clSocketClient);
 								});
 								
 							});

@@ -75,34 +75,37 @@
 
 							m_clMIASocket.onConnection(function (socket) {
 
-								socket.on('token_get', function () {
+								socket.removeAllListeners('token_get');
+								socket.removeAllListeners('token_set');
 
-									var sToken = m_clThis.getConf().token;
+								socket
+									.on('token_get', function () {
 
-									if (sToken) {
-										socket.emit('token_get', sToken);
-									}
-									else {
-										socket.emit('token_empty');
-									}
+										var sToken = m_clThis.getConf().token;
 
-								});
+										if (sToken) {
+											socket.emit('token_get', sToken);
+										}
+										else {
+											socket.emit('token_empty');
+										}
 
-								socket.on('token_set', function (token) {
+									})
+									.on('token_set', function (token) {
 
-									var stConf = m_clThis.getConf();
+										var stConf = m_clThis.getConf();
 
-									stConf.token = token;
+										stConf.token = token;
 
-									_saveConf(stConf)
-										.then(function () {
-											socket.emit('token_get', token);
-										})
-										.catch(function (err) {
-											socket.emit('token_error', err);
-										});
+										_saveConf(stConf)
+											.then(function () {
+												socket.emit('token_get', token);
+											})
+											.catch(function (err) {
+												socket.emit('token_error', err);
+											});
 
-								});
+									});
 
 							});
 							

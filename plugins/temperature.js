@@ -6,12 +6,18 @@
 		
 // module
 	
-	module.exports = function (p_clSocket, p_clW3VoicesManager) {
+	module.exports = function (p_clSocket) {
 
-		p_clSocket.emit('temperature', 24.2);
+		// constructor
+			
+			p_clSocket.onConnection(function (socket) {
 
-		setInterval(function() {
-			p_clSocket.emit('temperature', 24.2);
-		}, 5000);
+				socket.emit('temperature', 24.2);
+
+				setInterval(function() {
+					socket.emit('temperature', 24.2);
+				}, 5000);
+
+			});
 
 	};

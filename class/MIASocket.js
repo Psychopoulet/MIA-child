@@ -2,9 +2,8 @@
 // dépendances
 	
 	var
-		CST_DEP_DNS = require('dns'),
-		CST_DEP_OS = require('os'),
 		CST_DEP_Path = require('path'),
+		CST_DEP_Q = require('q'),
 		CST_DEP_Log = require('logs'),
 		CST_DEP_SocketIO = require('socket.io-client');
 		
@@ -14,8 +13,8 @@
 	
 		// attributes
 			
-			var m_clThis = this,
-				m_clSocketClient,
+			var
+				m_clThis = this,
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
 				m_tabOnConnection = [];
 				
@@ -23,60 +22,69 @@
 		
 			// public
 				
-				this.start = function (p_nPort, p_fCallback, p_fCallbackOnConnection) {
+				this.start = function (p_sIP, p_nPort) {
 					
-					try {
-						
-						m_clSocketClient = CST_DEP_SocketIO.connect('http://localhost:' + p_nPort);
+					var deferred = CST_DEP_Q.defer();
 
-						m_clLog.success('-- [MIA socket] started');
-						
-						if ('function' === typeof p_fCallback) {
-							p_fCallback();
-						}
+						try {
 
-						m_clThis.onConnection(function (socket) {
+							var clSocketClient = CST_DEP_SocketIO.connect('http://' + p_sIP + ':' + p_nPort);
 
-							m_clLog.success('-- [MIA socket] connected');
+							m_clThis.onConnection(function (socket) {
 
-							socket.on('disconnect', function () {
-								m_clLog.info('-- [MIA socket] disconnected');
-							});
+								m_clLog.success('-- [MIA socket] connected');
 
-						});
-						
-						m_clSocketClient.on('connect', function () {
+								socket.on('disconnect', function () {
+									m_clLog.info('-- [MIA socket] disconnected');
+								});
 
-							m_tabOnConnection.forEach(function (fOnConnection) {
-								fOnConnection(m_clSocketClient);
 							});
 							
-						});
+							clSocketClient.on('connect', function () {
+								m_tabOnConnection.forEach(function (fOnConnection) {
+									fOnConnection(clSocketClient);
+								});
+								
+							});
 
-					}
-					catch (e) {
-						m_clLog.err(e);
-					}
-					
-					return m_clThis;
-					
+							m_clLog.success('-- [MIA socket] started');
+							
+							deferred.resolve();
+
+						}
+						catch (e) {
+							if (e.message) {
+								deferred.reject(e.message);
+							}
+							else {
+								deferred.reject(e);
+							}
+						}
+						
+					return deferred.promise;
+
 				};
 				
-				this.stop = function (p_fCallback) {
+				this.stop = function () {
 
-					try {
+					var deferred = CST_DEP_Q.defer();
 
-						if ('function' === typeof p_fCallback) {
-							p_fCallback();
+						try {
+
+							deferred.resolve();
+					
 						}
-					
-					}
-					catch (e) {
-						m_clLog.err(e);
-					}
-					
-					return m_clThis;
-					
+						catch (e) {
+							if (e.message) {
+								deferred.reject(e.message);
+							}
+							else {
+								deferred.reject(e);
+							}
+						}
+						
+					return deferred.promise;
+
 				};
 				
 				this.onConnection = function (p_fCallback) {

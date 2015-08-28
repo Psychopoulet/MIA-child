@@ -41,7 +41,6 @@
 							});
 							
 							clSocketClient.on('connect', function () {
-
 								m_tabOnConnection.forEach(function (fOnConnection) {
 									fOnConnection(clSocketClient);
 								});

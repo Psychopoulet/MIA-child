@@ -18,10 +18,12 @@
 				
 		// constructor
 			
+			p_clSocket.onDisconnect(function(socket) {
+				socket.removeAllListeners('w3');
+			});
+
 			p_clSocket.onConnection(function (socket) {
 
-				socket.removeAllListeners('w3');
-				
 				socket.on('w3', function(data) {
 
 					var sRace, sCharacter, sAction, sActionCode;

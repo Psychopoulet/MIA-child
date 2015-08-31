@@ -10,6 +10,10 @@
 
 		// constructor
 			
+			p_clSocket.onDisconnect(function(socket) {
+				socket.removeAllListeners('temperature');
+			});
+
 			p_clSocket.onConnection(function (socket) {
 
 				socket.emit('temperature', 24.2);

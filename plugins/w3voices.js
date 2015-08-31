@@ -18,6 +18,10 @@
 				
 		// constructor
 			
+			p_clSocket.onDisconnect(function(socket) {
+				socket.removeAllListeners('w3');
+			});
+
 			p_clSocket.onConnection(function (socket) {
 
 				socket.on('w3', function(data) {
@@ -93,6 +97,10 @@
 											})
 											.catch(function (e) {
 
+												if (e.cmd) {
+													e = e.cmd;
+												}
+
 												m_clLog.err(e);
 
 												socket.emit('w3', {
@@ -158,6 +166,10 @@
 
 											})
 											.catch(function (e) {
+
+												if (e.cmd) {
+													e = e.cmd;
+												}
 
 												m_clLog.err(e);
 
@@ -308,6 +320,10 @@
 
 													})
 													.catch(function (e) {
+
+														if (e.cmd) {
+															e = e.cmd;
+														}
 
 														m_clLog.err(e);
 

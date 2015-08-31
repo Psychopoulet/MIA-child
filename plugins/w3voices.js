@@ -97,6 +97,10 @@
 											})
 											.catch(function (e) {
 
+												if (e.cmd) {
+													e = e.cmd;
+												}
+
 												m_clLog.err(e);
 
 												socket.emit('w3', {
@@ -162,6 +166,10 @@
 
 											})
 											.catch(function (e) {
+
+												if (e.cmd) {
+													e = e.cmd;
+												}
 
 												m_clLog.err(e);
 
@@ -312,6 +320,10 @@
 
 													})
 													.catch(function (e) {
+
+														if (e.cmd) {
+															e = e.cmd;
+														}
 
 														m_clLog.err(e);
 

@@ -23,7 +23,7 @@
 			});
 
 			p_clSocket.onConnection(function (socket) {
-
+				
 				socket.on('w3', function(data) {
 
 					var sRace, sCharacter, sAction, sActionCode;
@@ -48,11 +48,7 @@
 								case 'get_musics' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else {
 
@@ -68,18 +64,10 @@
 								case 'play_music' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else if (!data.music) {
-
-										socket.emit('w3', {
-											error : 'music missing'
-										});
-
+										socket.emit('w3.error', 'music missing');
 									}
 									else {
 
@@ -96,13 +84,14 @@
 
 											})
 											.catch(function (e) {
-
+												
+												if (e.message) {
+													e = e.message;
+												}
+												
 												m_clLog.err(e);
-
-												socket.emit('w3', {
-													error : e
-												});
-
+												socket.emit('w3.error', e);
+												
 											});
 
 									}
@@ -114,11 +103,7 @@
 								case 'get_warnings' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else {
 
@@ -134,18 +119,10 @@
 								case 'play_warning' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else if (!data.warning) {
-
-										socket.emit('w3', {
-											error : 'warning missing'
-										});
-
+										socket.emit('w3.error', 'warning missing');
 									}
 									else {
 
@@ -162,13 +139,14 @@
 
 											})
 											.catch(function (e) {
-
+												
+												if (e.message) {
+													e = e.message;
+												}
+												
 												m_clLog.err(e);
-
-												socket.emit('w3', {
-													error : e
-												});
-
+												socket.emit('w3.error', e);
+												
 											});
 
 									}
@@ -180,11 +158,7 @@
 								case 'get_characters' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else {
 
@@ -202,18 +176,10 @@
 									case 'get_actions' :
 
 										if (!data.race) {
-
-											socket.emit('w3', {
-												error : 'race missing'
-											});
-
+											socket.emit('w3.error', 'race missing');
 										}
 										else if (!data.character) {
-
-											socket.emit('w3', {
-												error : 'character missing'
-											});
-
+											socket.emit('w3.error', 'character missing');
 										}
 										else {
 
@@ -231,25 +197,13 @@
 										case 'get_actioncodes' :
 
 											if (!data.race) {
-
-												socket.emit('w3', {
-													error : 'race missing'
-												});
-
+												socket.emit('w3.error', 'race missing');
 											}
 											else if (!data.character) {
-
-												socket.emit('w3', {
-													error : 'character missing'
-												});
-
+												socket.emit('w3.error', 'character missing');
 											}
 											else if (!data.action) {
-
-												socket.emit('w3', {
-													error : 'action missing'
-												});
-
+												socket.emit('w3.error', 'action missing');
 											}
 											else {
 
@@ -265,32 +219,16 @@
 										case 'play_actioncode' :
 
 											if (!data.race) {
-
-												socket.emit('w3', {
-													error : 'race missing'
-												});
-
+												socket.emit('w3.error', 'race missing');
 											}
 											else if (!data.character) {
-
-												socket.emit('w3', {
-													error : 'character missing'
-												});
-
+												socket.emit('w3.error', 'character missing');
 											}
 											else if (!data.action) {
-
-												socket.emit('w3', {
-													error : 'action missing'
-												});
-
+												socket.emit('w3.error', 'action missing');
 											}
 											else if (!data.actioncode) {
-
-												socket.emit('w3', {
-													error : 'actioncode missing'
-												});
-
+												socket.emit('w3.error', 'actioncode missing');
 											}
 											else {
 
@@ -312,13 +250,14 @@
 
 													})
 													.catch(function (e) {
-
+												
+														if (e.message) {
+															e = e.message;
+														}
+														
 														m_clLog.err(e);
-
-														socket.emit('w3', {
-															error : e
-														});
-
+														socket.emit('w3.error', e);
+														
 													});
 
 											}

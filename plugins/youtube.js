@@ -18,17 +18,17 @@
 		// constructor
 			
 			p_clSocket.onDisconnect(function(socket) {
-				socket.removeAllListeners('youtube.play');
+				socket.removeAllListeners('child.youtube.play');
 			});
 
 			p_clSocket.onConnection(function (socket) {
 
-				socket.on('youtube.play', function(data) {
+				socket.on('child.youtube.play', function(data) {
 					
 					CST_DEP_EXEC('cvlc "' + data + '" --play-and-exit', function (error, stdout, stderr) {
 
 						if (null == error) {
-							socket.emit('youtube.played');
+							socket.emit('child.youtube.played');
 						}
 						else {
 
@@ -37,15 +37,15 @@
 								if (null != error) {
 									
 									if (error.cmd) {
-										socket.emit('youtube.error', error.cmd);
+										socket.emit('child.youtube.error', error.cmd);
 									}
 									else {
-										socket.emit('youtube.error', error);
+										socket.emit('child.youtube.error', error);
 									}
 
 								}
 								else {
-									socket.emit('youtube.played');
+									socket.emit('child.youtube.played');
 								}
 
 							});

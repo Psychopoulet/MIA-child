@@ -41,8 +41,8 @@
 
 									m_clLog.info('-- [MIA socket] disconnected');
 
-									clSocketClient.removeAllListeners('token_get');
-									clSocketClient.removeAllListeners('token_set');
+									clSocketClient.removeAllListeners('child.token.get');
+									clSocketClient.removeAllListeners('child.token.set');
 
 									m_tabOnDisconnect.forEach(function (fOnDisconnect) {
 										fOnDisconnect(clSocketClient);
@@ -51,7 +51,7 @@
 								});
 
 								clSocketClient
-									.on('token_get', function () {
+									.on('child.token.get', function () {
 
 										var sToken = m_clConf.getConf().token;
 
@@ -59,7 +59,7 @@
 
 											m_clLog.success('-- [MIA socket] get token \'' + sToken + '\'');
 
-											clSocketClient.emit('token_get', sToken);
+											clSocketClient.emit('child.token.get', sToken);
 
 											m_tabOnConnection.forEach(function (fOnConnection) {
 												fOnConnection(clSocketClient);
@@ -67,18 +67,18 @@
 
 										}
 										else {
-											clSocketClient.emit('token_empty');
+											clSocketClient.emit('child.token.empty');
 										}
 
 									})
-									.on('token_set', function (token) {
+									.on('child.token.set', function (token) {
 
 										new m_clConf.setConfOption('token', token).save()
 											.then(function () {
-												clSocketClient.emit('token_get', token);
+												clSocketClient.emit('child.token.get', token);
 											})
 											.catch(function (err) {
-												clSocketClient.emit('token_error', err);
+												clSocketClient.emit('child.token.error', err);
 											});
 
 									});

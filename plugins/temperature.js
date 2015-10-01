@@ -11,15 +11,15 @@
 		// constructor
 			
 			p_clSocket.onDisconnect(function(socket) {
-				socket.removeAllListeners('temperature');
+				socket.removeAllListeners('child.temperature');
 			});
 
 			p_clSocket.onConnection(function (socket) {
 
-				socket.emit('temperature', '24.' + (Math.floor(Math.random() * (9 - 0)) + 0));
+				socket.emit('child.temperature', '24.' + (Math.floor(Math.random() * (9 - 0)) + 0));
 
 				setInterval(function() {
-					socket.emit('temperature', '24.' + (Math.floor(Math.random() * (9 - 0)) + 0));
+					socket.emit('child.temperature', '24.' + (Math.floor(Math.random() * (9 - 0)) + 0));
 				}, 5000);
 
 			});

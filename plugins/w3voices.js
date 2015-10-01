@@ -4,6 +4,8 @@
 	var
 		CST_DEP_Path = require('path'),
 		CST_DEP_Log = require('logs'),
+		CST_DEP_Q = require('q'),
+		CST_DEP_EXEC = require('child_process').exec,
 		CST_DEP_W3VoicesManager = require('W3VoicesManager');
 		
 // module
@@ -16,15 +18,97 @@
 				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs', 'plugins', 'w3voices')),
 				m_clW3VoicesManager = new CST_DEP_W3VoicesManager();
 				
+		// methods
+		
+			// private
+			
+				function _play(p_sUrl) {
+					
+					var deferred = CST_DEP_Q.defer();
+
+						try {
+
+							CST_DEP_EXEC('cvlc "' + p_sUrl + '" --play-and-exit', function (error, stdout, stderr) {
+
+								if (null == error) {
+									deferred.resolve();
+								}
+								else {
+
+									CST_DEP_EXEC('vlc "' + p_sUrl + '" --play-and-exit', function (error, stdout, stderr) {
+
+										if (null != error) {
+											
+											if (error.cmd) {
+												deferred.reject(error.cmd);
+											}
+											else {
+												deferred.reject(error);
+											}
+
+										}
+										else {
+											deferred.resolve();
+										}
+
+									});
+
+								}
+		
+							});
+
+						}
+						catch(e) {
+							if (e.message) { deferred.reject(e.message); }
+							else { deferred.reject(e); }
+
+						}
+					
+					return deferred.promise;
+
+				}
+				
 		// constructor
 			
 			p_clSocket.onDisconnect(function(socket) {
 				socket.removeAllListeners('w3');
+				socket.removeAllListeners('child.warcraftsounds.action.play');
 			});
 
 			p_clSocket.onConnection(function (socket) {
-
-				socket.on('w3', function(data) {
+				
+				socket
+				.on('child.warcraftsounds.action.play', function(data) {
+					
+					if (!data) {
+						m_clLog.err('Missing data');
+						socket.emit('child.warcraftsounds.error', 'Missing data');
+					}
+					else if (!data.url) {
+						m_clLog.err('Missing \'data.url\' data');
+						p_clSocket.emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
+					}
+					else {
+						
+						_play(data.url)
+							.then(function (e) {
+								socket.emit('child.warcraftsounds.action.played', data);
+							})
+							.catch(function (e) {
+								
+								if (e.message) {
+									e = e.message;
+								}
+								
+								m_clLog.err(e);
+								socket.emit('child.warcraftsounds.error', e);
+								
+							});
+							
+					}
+					
+				})
+				.on('w3', function(data) {
 
 					var sRace, sCharacter, sAction, sActionCode;
 
@@ -48,11 +132,7 @@
 								case 'get_musics' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else {
 
@@ -68,18 +148,10 @@
 								case 'play_music' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else if (!data.music) {
-
-										socket.emit('w3', {
-											error : 'music missing'
-										});
-
+										socket.emit('w3.error', 'music missing');
 									}
 									else {
 
@@ -96,13 +168,14 @@
 
 											})
 											.catch(function (e) {
-
+												
+												if (e.message) {
+													e = e.message;
+												}
+												
 												m_clLog.err(e);
-
-												socket.emit('w3', {
-													error : e
-												});
-
+												socket.emit('w3.error', e);
+												
 											});
 
 									}
@@ -114,11 +187,7 @@
 								case 'get_warnings' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else {
 
@@ -134,18 +203,10 @@
 								case 'play_warning' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else if (!data.warning) {
-
-										socket.emit('w3', {
-											error : 'warning missing'
-										});
-
+										socket.emit('w3.error', 'warning missing');
 									}
 									else {
 
@@ -162,13 +223,14 @@
 
 											})
 											.catch(function (e) {
-
+												
+												if (e.message) {
+													e = e.message;
+												}
+												
 												m_clLog.err(e);
-
-												socket.emit('w3', {
-													error : e
-												});
-
+												socket.emit('w3.error', e);
+												
 											});
 
 									}
@@ -180,11 +242,7 @@
 								case 'get_characters' :
 
 									if (!data.race) {
-
-										socket.emit('w3', {
-											error : 'race missing'
-										});
-
+										socket.emit('w3.error', 'race missing');
 									}
 									else {
 
@@ -202,18 +260,10 @@
 									case 'get_actions' :
 
 										if (!data.race) {
-
-											socket.emit('w3', {
-												error : 'race missing'
-											});
-
+											socket.emit('w3.error', 'race missing');
 										}
 										else if (!data.character) {
-
-											socket.emit('w3', {
-												error : 'character missing'
-											});
-
+											socket.emit('w3.error', 'character missing');
 										}
 										else {
 
@@ -231,25 +281,13 @@
 										case 'get_actioncodes' :
 
 											if (!data.race) {
-
-												socket.emit('w3', {
-													error : 'race missing'
-												});
-
+												socket.emit('w3.error', 'race missing');
 											}
 											else if (!data.character) {
-
-												socket.emit('w3', {
-													error : 'character missing'
-												});
-
+												socket.emit('w3.error', 'character missing');
 											}
 											else if (!data.action) {
-
-												socket.emit('w3', {
-													error : 'action missing'
-												});
-
+												socket.emit('w3.error', 'action missing');
 											}
 											else {
 
@@ -265,32 +303,16 @@
 										case 'play_actioncode' :
 
 											if (!data.race) {
-
-												socket.emit('w3', {
-													error : 'race missing'
-												});
-
+												socket.emit('w3.error', 'race missing');
 											}
 											else if (!data.character) {
-
-												socket.emit('w3', {
-													error : 'character missing'
-												});
-
+												socket.emit('w3.error', 'character missing');
 											}
 											else if (!data.action) {
-
-												socket.emit('w3', {
-													error : 'action missing'
-												});
-
+												socket.emit('w3.error', 'action missing');
 											}
 											else if (!data.actioncode) {
-
-												socket.emit('w3', {
-													error : 'actioncode missing'
-												});
-
+												socket.emit('w3.error', 'actioncode missing');
 											}
 											else {
 
@@ -312,13 +334,14 @@
 
 													})
 													.catch(function (e) {
-
+												
+														if (e.message) {
+															e = e.message;
+														}
+														
 														m_clLog.err(e);
-
-														socket.emit('w3', {
-															error : e
-														});
-
+														socket.emit('w3.error', e);
+														
 													});
 
 											}

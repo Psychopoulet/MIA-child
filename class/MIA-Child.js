@@ -2,11 +2,11 @@
 // dépendances
 	
 	var
-		CST_DEP_Path = require('path'),
-		CST_DEP_FileSystem = require('fs'),
-		CST_DEP_Q = require('q'),
-		CST_DEP_MIASocket = require(CST_DEP_Path.join(__dirname, 'MIASocket.js')),
-		CST_DEP_Conf = require(CST_DEP_Path.join(__dirname, 'Conf.js'));
+		path = require('path'),
+		fs = require('fs'),
+		q = require('q'),
+		MIASocket = require(path.join(__dirname, 'MIASocket.js')),
+		Conf = require(path.join(__dirname, 'Conf.js'));
 		
 // module
 	
@@ -16,8 +16,8 @@
 			
 			var
 				m_clThis = this,
-				m_clConf = new CST_DEP_Conf(),
-				m_clMIASocket = new CST_DEP_MIASocket();
+				m_clConf = new Conf(),
+				m_clMIASocket = new MIASocket();
 				
 		// methodes
 			
@@ -26,15 +26,22 @@
 				this.start = function () {
 
 					var
-						deferred = CST_DEP_Q.defer(),
-						sPluginsPath = CST_DEP_Path.join(__dirname, '..', 'plugins');
+						deferred = q.defer(),
+						sPluginsPath = path.join(__dirname, '..', 'plugins');
 
 						try {
 
 							// plugins
-											
-								CST_DEP_FileSystem.readdirSync(sPluginsPath).forEach(function (file) {
-									require(CST_DEP_Path.join(sPluginsPath, file))(m_clMIASocket);
+							
+								require('fs').readdirSync(sPluginsPath).forEach(function (file) {
+									
+									try {
+										require(path.join(sPluginsPath, file))(m_clMIASocket);
+									}
+									catch (e) {
+										m_clLog.err((e.message) ? e.message : e);
+									}
+
 								});
 
 							// start
@@ -45,12 +52,7 @@
 									
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;

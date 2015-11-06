@@ -2,10 +2,10 @@
 // dépendances
 	
 	var
-		CST_DEP_Path = require('path'),
-		CST_DEP_Q = require('q'),
-		CST_DEP_EXEC = require('child_process').exec,
-		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, '..', 'class', 'Logs.js'));
+		path = require('path'),
+		q = require('q'),
+		exec = require('child_process').exec,
+		Logs = require(path.join(__dirname, '..', 'class', 'Logs.js'));
 		
 // module
 	
@@ -14,7 +14,7 @@
 		// attributes
 			
 			var
-				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs', 'plugins', 'warcraftsounds'));
+				m_clLog = new Logs(path.join(__dirname, '..', 'logs', 'plugins', 'warcraftsounds'));
 				
 		// methods
 		
@@ -22,18 +22,18 @@
 			
 				function _play(p_sUrl) {
 					
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
-							CST_DEP_EXEC('cvlc "' + p_sUrl + '" --play-and-exit', function (error, stdout, stderr) {
+							exec('cvlc "' + p_sUrl + '" --play-and-exit', function (error, stdout, stderr) {
 
 								if (!error) {
 									deferred.resolve();
 								}
 								else {
 
-									CST_DEP_EXEC('vlc "' + p_sUrl + '" --play-and-exit', function (error, stdout, stderr) {
+									exec('vlc "' + p_sUrl + '" --play-and-exit', function (error, stdout, stderr) {
 										
 										if (error) {
 											
@@ -57,9 +57,7 @@
 
 						}
 						catch(e) {
-							if (e.message) { deferred.reject(e.message); }
-							else { deferred.reject(e); }
-
+							deferred.reject((e.message) ? e.message : e);
 						}
 					
 					return deferred.promise;
@@ -96,14 +94,8 @@
 									socket.emit('child.warcraftsounds.action.played', p_stData);
 								})
 								.catch(function (e) {
-									
-									if (e.message) {
-										e = e.message;
-									}
-									
 									m_clLog.err(e);
 									socket.emit('child.warcraftsounds.error', e);
-									
 								});
 								
 						}
@@ -127,14 +119,8 @@
 									socket.emit('child.warcraftsounds.music.played', p_stData);
 								})
 								.catch(function (e) {
-									
-									if (e.message) {
-										e = e.message;
-									}
-									
 									m_clLog.err(e);
 									socket.emit('child.warcraftsounds.error', e);
-									
 								});
 								
 						}
@@ -158,14 +144,8 @@
 									socket.emit('child.warcraftsounds.warning.played', p_stData);
 								})
 								.catch(function (e) {
-									
-									if (e.message) {
-										e = e.message;
-									}
-									
 									m_clLog.err(e);
 									socket.emit('child.warcraftsounds.error', e);
-									
 								});
 								
 						}

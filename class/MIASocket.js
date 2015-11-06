@@ -2,11 +2,10 @@
 // dépendances
 	
 	var
-		CST_DEP_Path = require('path'),
-		CST_DEP_Q = require('q'),
-		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, 'Logs.js')),
-		CST_DEP_Conf = require(CST_DEP_Path.join(__dirname, 'Conf.js')),
-		CST_DEP_SocketIO = require('socket.io-client');
+		path = require('path'),
+		q = require('q'),
+		Logs = require(path.join(__dirname, 'Logs.js')),
+		Conf = require(path.join(__dirname, 'Conf.js'));
 		
 // module
 	
@@ -16,8 +15,8 @@
 			
 			var
 				m_clThis = this,
-				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
-				m_clConf = new CST_DEP_Conf(),
+				m_clLog = new Logs(path.join(__dirname, '..', 'logs')),
+				m_clConf = new Conf(),
 				m_tabOnConnection = [],
 				m_tabOnDisconnect = [];
 
@@ -27,11 +26,11 @@
 				
 				this.start = function (p_sIP, p_nPort) {
 					
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
-							var clSocketClient = CST_DEP_SocketIO.connect('http://' + p_sIP + ':' + p_nPort);
+							var clSocketClient = require('socket.io-client').connect('http://' + p_sIP + ':' + p_nPort);
 
 							clSocketClient.on('connect', function () {
 
@@ -91,12 +90,7 @@
 
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;
@@ -105,20 +99,13 @@
 				
 				this.stop = function () {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
-
 							deferred.resolve();
-					
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);	deferred.reject(e);
 						}
 						
 					return deferred.promise;
@@ -130,7 +117,7 @@
 					if ('function' === typeof p_fCallback) {
 						m_tabOnConnection.push(p_fCallback);
 					}
-							
+					
 					return m_clThis;
 					
 				};
@@ -140,7 +127,7 @@
 					if ('function' === typeof p_fCallback) {
 						m_tabOnDisconnect.push(p_fCallback);
 					}
-							
+					
 					return m_clThis;
 					
 				};

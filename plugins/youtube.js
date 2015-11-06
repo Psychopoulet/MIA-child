@@ -2,9 +2,9 @@
 // dépendances
 	
 	var
-		CST_DEP_Path = require('path'),
-		CST_DEP_EXEC = require('child_process').exec,
-		CST_DEP_Log = require(CST_DEP_Path.join(__dirname, '..', 'class', 'Logs.js'));
+		path = require('path'),
+		exec = require('child_process').exec,
+		Logs = require(path.join(__dirname, '..', 'class', 'Logs.js'));
 		
 // module
 	
@@ -13,7 +13,7 @@
 		// attributes
 			
 			var
-				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs', 'plugins', 'youtube'));
+				m_clLog = new Logs(path.join(__dirname, '..', 'logs', 'plugins', 'youtube'));
 				
 		// constructor
 			
@@ -25,14 +25,14 @@
 
 				socket.on('child.youtube.play', function(data) {
 					
-					CST_DEP_EXEC('cvlc "' + data + '" --play-and-exit', function (error, stdout, stderr) {
+					exec('cvlc "' + data + '" --play-and-exit', function (error, stdout, stderr) {
 
 						if (null == error) {
 							socket.emit('child.youtube.played');
 						}
 						else {
 
-							CST_DEP_EXEC('vlc "' + data + '" --play-and-exit', function (error, stdout, stderr) {
+							exec('vlc "' + data + '" --play-and-exit', function (error, stdout, stderr) {
 
 								if (null != error) {
 									

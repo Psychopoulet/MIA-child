@@ -2,12 +2,11 @@
 // dépendances
 	
 	var
-		CST_DEP_Path = require('path'),
-		CST_DEP_FileSystem = require('fs'),
-		CST_DEP_Q = require('q'),
-		CST_DEP_Log = require('logs'),
-		CST_DEP_MIA_CHILD = require(CST_DEP_Path.join(__dirname, 'MIA-Child.js')),
-		CST_DEP_Conf = require(CST_DEP_Path.join(__dirname, 'Conf.js'));
+		path = require('path'),
+		fs = require('fs'),
+		q = require('q'),
+		Logs = require(path.join(__dirname, 'Logs.js')),
+		MIAChild = require(path.join(__dirname, 'MIA-Child.js'));
 		
 // module
 	
@@ -17,11 +16,11 @@
 			
 			var
 				m_clThis = this,
-				m_sCommandFile = CST_DEP_Path.join(__dirname, '../', 'command.tmp'),
+				m_sCommandFile = path.join(__dirname, '../', 'command.tmp'),
 				m_tabArgs = process.argv.slice(2),
-				m_sLaunchType = m_tabArgs[0],
-				m_clLog = new CST_DEP_Log(CST_DEP_Path.join(__dirname, '..', 'logs')),
-				m_clMIAChild = new CST_DEP_MIA_CHILD();
+				m_sLaunchType = (0 < m_tabArgs.length) ? m_tabArgs[0] : '',
+				m_clLog = new Logs(path.join(__dirname, '..', 'logs')),
+				m_clMIAChild = new MIAChild();
 				
 		// methodes
 			
@@ -29,16 +28,16 @@
 
 				this.start = function () {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
-							if (CST_DEP_FileSystem.existsSync(m_sCommandFile)) {
+							if (fs.existsSync(m_sCommandFile)) {
 								deferred.reject('An another client is already running.');
 							}
 							else {
 
-								CST_DEP_FileSystem.writeFile(m_sCommandFile, process.pid, function (err) {
+								fs.writeFile(m_sCommandFile, process.pid, function (err) {
 									
 									if (err) {
 										if (err.message) {
@@ -64,12 +63,7 @@
 							
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;
@@ -78,17 +72,17 @@
 				
 				this.stop = function () {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
-							if (!CST_DEP_FileSystem.existsSync(m_sCommandFile)) {
+							if (!fs.existsSync(m_sCommandFile)) {
 								m_clLog.log('[END]');
 								deferred.resolve();
 							}
 							else {
 								
-								CST_DEP_FileSystem.readFile(m_sCommandFile, function (err, p_sData) {
+								fs.readFile(m_sCommandFile, function (err, p_sData) {
 
 									if (err) {
 										if (err.message) {
@@ -100,7 +94,7 @@
 									}
 									else {
 
-										CST_DEP_FileSystem.unlink(m_sCommandFile, function (err) {
+										fs.unlink(m_sCommandFile, function (err) {
 
 											if (err) {
 												if (err.message) {
@@ -141,12 +135,7 @@
 							
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;
@@ -155,7 +144,7 @@
 				
 				this.help = function () {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
@@ -169,12 +158,7 @@
 
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;
@@ -183,13 +167,13 @@
 				
 				this.setMIAIP = function () {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
 							if (m_tabArgs[1]) {
 
-								new CST_DEP_Conf().setConfOption('miaip', m_tabArgs[1]).save()
+								require(path.join(__dirname, 'Factory.js')).getConfInstance().setConfOption('miaip', m_tabArgs[1]).save()
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 
@@ -200,12 +184,7 @@
 
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;
@@ -214,13 +193,13 @@
 				
 				this.setMIAPort = function () {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
 							if (m_tabArgs[1]) {
 
-								new CST_DEP_Conf().setConfOption('miaport', parseInt(m_tabArgs[1])).save()
+								require(path.join(__dirname, 'Factory.js')).getConfInstance().setConfOption('miaport', parseInt(m_tabArgs[1])).save()
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 
@@ -231,12 +210,7 @@
 
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;

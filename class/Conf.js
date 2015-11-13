@@ -2,9 +2,8 @@
 // dépendances
 	
 	var
-		CST_DEP_Path = require('path'),
-		CST_DEP_FileSystem = require('fs'),
-		CST_DEP_Q = require('q');
+		fs = require('fs'),
+		q = require('q');
 		
 // module
 	
@@ -14,8 +13,8 @@
 			
 			var
 				m_clThis = this,
-				m_sConfFile = CST_DEP_Path.join(__dirname, '..', 'conf.json'),
-				m_stConf = JSON.parse(CST_DEP_FileSystem.readFileSync(m_sConfFile), 'utf8');
+				m_sConfFile = require('path').join(__dirname, '..', 'conf.json'),
+				m_stConf = JSON.parse(fs.readFileSync(m_sConfFile), 'utf8');
 				
 		// methodes
 			
@@ -32,19 +31,14 @@
 				
 				this.save = function() {
 
-					var deferred = CST_DEP_Q.defer();
+					var deferred = q.defer();
 
 						try {
 
-							CST_DEP_FileSystem.writeFile(m_sConfFile, JSON.stringify(m_stConf), 'utf8', function (err) {
+							fs.writeFile(m_sConfFile, JSON.stringify(m_stConf), 'utf8', function (e) {
 
-								if (err) {
-									if (err.message) {
-										deferred.reject(err.message);
-									}
-									else {
-										deferred.reject(err);
-									}
+								if (e) {
+									deferred.reject((e.message) ? e.message : e);
 								}
 								else {
 									deferred.resolve();
@@ -54,12 +48,7 @@
 
 						}
 						catch (e) {
-							if (e.message) {
-								deferred.reject(e.message);
-							}
-							else {
-								deferred.reject(e);
-							}
+							deferred.reject((e.message) ? e.message : e);
 						}
 						
 					return deferred.promise;

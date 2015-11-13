@@ -4,8 +4,9 @@
 	var
 		path = require('path'),
 		q = require('q'),
-		Logs = require(path.join(__dirname, 'Logs.js')),
-		Conf = require(path.join(__dirname, 'Conf.js'));
+		
+		Factory = require(path.join(__dirname, 'Factory.js')),
+		Logs = require(path.join(__dirname, 'Logs.js'));
 		
 // module
 	
@@ -16,7 +17,6 @@
 			var
 				m_clThis = this,
 				m_clLog = new Logs(path.join(__dirname, '..', 'logs')),
-				m_clConf = new Conf(),
 				m_tabOnConnection = [],
 				m_tabOnDisconnect = [];
 
@@ -52,7 +52,7 @@
 								clSocketClient
 									.on('child.token.get', function () {
 
-										var sToken = m_clConf.getConf().token;
+										var sToken = Factory.getConfInstance().getConf().token;
 
 										if (sToken) {
 
@@ -72,7 +72,7 @@
 									})
 									.on('child.token.set', function (token) {
 
-										new m_clConf.setConfOption('token', token).save()
+										Factory.getConfInstance().setConfOption('token', token).save()
 											.then(function () {
 												clSocketClient.emit('child.token.get', token);
 											})

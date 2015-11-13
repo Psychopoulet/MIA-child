@@ -6,8 +6,7 @@
 		fs = require('fs'),
 		q = require('q'),
 		Logs = require(path.join(__dirname, 'Logs.js')),
-		MIAChild = require(path.join(__dirname, 'MIA-Child.js')),
-		Conf = require(path.join(__dirname, 'Conf.js'));
+		MIAChild = require(path.join(__dirname, 'MIA-Child.js'));
 		
 // module
 	
@@ -174,7 +173,7 @@
 
 							if (m_tabArgs[1]) {
 
-								new Conf().setConfOption('miaip', m_tabArgs[1]).save()
+								require(path.join(__dirname, 'Factory.js')).getConfInstance().setConfOption('miaip', m_tabArgs[1]).save()
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 
@@ -200,7 +199,7 @@
 
 							if (m_tabArgs[1]) {
 
-								new Conf().setConfOption('miaport', parseInt(m_tabArgs[1])).save()
+								require(path.join(__dirname, 'Factory.js')).getConfInstance().setConfOption('miaport', parseInt(m_tabArgs[1])).save()
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 

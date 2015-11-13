@@ -5,8 +5,9 @@
 		path = require('path'),
 		fs = require('fs'),
 		q = require('q'),
-		MIASocket = require(path.join(__dirname, 'MIASocket.js')),
-		Conf = require(path.join(__dirname, 'Conf.js'));
+
+		Factory = require(path.join(__dirname, 'Factory.js')),
+		Logs = require(path.join(__dirname, 'Logs.js'));
 		
 // module
 	
@@ -14,10 +15,7 @@
 		
 		// attributes
 			
-			var
-				m_clThis = this,
-				m_clConf = new Conf(),
-				m_clMIASocket = new MIASocket();
+			var m_clLog = new Logs(path.join(__dirname, '..', 'logs'));
 				
 		// methodes
 			
@@ -32,21 +30,29 @@
 						try {
 
 							// plugins
-							
-								require('fs').readdirSync(sPluginsPath).forEach(function (file) {
-									
-									try {
-										require(path.join(sPluginsPath, file))(m_clMIASocket);
-									}
-									catch (e) {
-										m_clLog.err((e.message) ? e.message : e);
-									}
 
-								});
+								Factory.getPluginsInstance().getData()
+									.then(function(p_tabData) {
+
+										p_tabData.forEach(function(p_stPlugin) {
+
+											try {
+												require(p_stPlugin.main)(Factory);
+												m_clLog.success('-- [plugin] ' + p_stPlugin.name + ' loaded');
+											}
+											catch (e) {
+												m_clLog.err((e.message) ? e.message : e);
+											}
+
+										});
+
+									})
+									.catch(deferred.reject);
+											
 
 							// start
 								
-								m_clMIASocket.start(m_clConf.getConf().miaip, m_clConf.getConf().miaport)
+								Factory.getMIASocketInstance().start(Factory.getConfInstance().getConf().miaip, Factory.getConfInstance().getConf().miaport)
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 									
@@ -60,7 +66,7 @@
 				};
 				
 				this.stop = function () {
-					return m_clMIASocket.stop();
+					return Factory.getMIASocketInstance().stop();
 				};
 				
 				this.getVersion = function () {

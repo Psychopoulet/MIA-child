@@ -5,11 +5,11 @@
 		path = require('path'),
 		q = require('q'),
 		exec = require('child_process').exec,
-		Logs = require(path.join(__dirname, '..', 'class', 'Logs.js'));
+		Logs = require(path.join(__dirname, '..', '..', 'class', 'Logs.js'));
 		
 // module
 	
-	module.exports = function (p_clSocket) {
+	module.exports = function (Factory) {
 		
 		// attributes
 			
@@ -66,14 +66,14 @@
 				
 		// constructor
 			
-			p_clSocket.onDisconnect(function(socket) {
+			Factory.getMIASocketInstance().onDisconnect(function(socket) {
 				socket.removeAllListeners('w3');
 				socket.removeAllListeners('child.warcraftsounds.action.play');
 				socket.removeAllListeners('child.warcraftsounds.music.play');
 				socket.removeAllListeners('child.warcraftsounds.warning.play');
 			});
 
-			p_clSocket.onConnection(function (socket) {
+			Factory.getMIASocketInstance().onConnection(function (socket) {
 				
 				socket
 					.on('child.warcraftsounds.action.play', function(p_stData) {
@@ -84,7 +84,7 @@
 						}
 						else if (!p_stData.url) {
 							m_clLog.err('Missing \'data.url\' data');
-							p_clSocket.emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
+							Factory.getMIASocketInstance().emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
 						}
 						else {
 							
@@ -109,7 +109,7 @@
 						}
 						else if (!p_stData.url) {
 							m_clLog.err('Missing \'data.url\' data');
-							p_clSocket.emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
+							Factory.getMIASocketInstance().emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
 						}
 						else {
 							
@@ -134,7 +134,7 @@
 						}
 						else if (!p_stData.url) {
 							m_clLog.err('Missing \'data.url\' data');
-							p_clSocket.emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
+							Factory.getMIASocketInstance().emit('child.warcraftsounds.error', 'Missing \'data.url\' data');
 						}
 						else {
 							

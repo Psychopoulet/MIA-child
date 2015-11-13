@@ -4,11 +4,11 @@
 	var
 		path = require('path'),
 		exec = require('child_process').exec,
-		Logs = require(path.join(__dirname, '..', 'class', 'Logs.js'));
+		Logs = require(path.join(__dirname, '..', '..', 'class', 'Logs.js'));
 		
 // module
 	
-	module.exports = function (p_clSocket) {
+	module.exports = function (Factory) {
 		
 		// attributes
 			
@@ -17,11 +17,11 @@
 				
 		// constructor
 			
-			p_clSocket.onDisconnect(function(socket) {
+			Factory.getMIASocketInstance().onDisconnect(function(socket) {
 				socket.removeAllListeners('child.youtube.play');
 			});
 
-			p_clSocket.onConnection(function (socket) {
+			Factory.getMIASocketInstance().onConnection(function (socket) {
 
 				socket.on('child.youtube.play', function(data) {
 					

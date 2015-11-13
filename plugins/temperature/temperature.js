@@ -3,15 +3,15 @@
 	
 // module
 	
-	module.exports = function (p_clSocket) {
+	module.exports = function (Factory) {
 
 		// constructor
 			
-			p_clSocket.onDisconnect(function(socket) {
+			Factory.getMIASocketInstance().onDisconnect(function(socket) {
 				socket.removeAllListeners('child.temperature');
 			});
 
-			p_clSocket.onConnection(function (socket) {
+			Factory.getMIASocketInstance().onConnection(function (socket) {
 
 				socket.emit('child.temperature', '24.' + (Math.floor(Math.random() * (9 - 0)) + 0));
 

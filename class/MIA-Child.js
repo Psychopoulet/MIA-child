@@ -6,7 +6,7 @@
 		fs = require('fs'),
 		q = require('q'),
 
-		Factory = require(path.join(__dirname, 'Factory.js')),
+		Container = require(path.join(__dirname, 'Container.js')),
 		Logs = require(path.join(__dirname, 'Logs.js'));
 		
 // module
@@ -31,13 +31,13 @@
 
 							// plugins
 
-								Factory.getPluginsInstance().getData()
+								Container.getPluginsInstance().getData()
 									.then(function(p_tabData) {
 
 										p_tabData.forEach(function(p_stPlugin) {
 
 											try {
-												require(p_stPlugin.main)(Factory);
+												require(p_stPlugin.main)(Container);
 												m_clLog.success('-- [plugin] ' + p_stPlugin.name + ' loaded');
 											}
 											catch (e) {
@@ -52,7 +52,7 @@
 
 							// start
 								
-								Factory.getMIASocketInstance().start(Factory.getConfInstance().getConf().miaip, Factory.getConfInstance().getConf().miaport)
+								Container.getMIASocketInstance().start(Container.getConfInstance().getConf().miaip, Container.getConfInstance().getConf().miaport)
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 									
@@ -66,7 +66,7 @@
 				};
 				
 				this.stop = function () {
-					return Factory.getMIASocketInstance().stop();
+					return Container.getMIASocketInstance().stop();
 				};
 				
 				this.getVersion = function () {

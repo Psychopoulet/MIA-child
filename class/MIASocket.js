@@ -5,7 +5,7 @@
 		path = require('path'),
 		q = require('q'),
 		
-		Factory = require(path.join(__dirname, 'Factory.js')),
+		Container = require(path.join(__dirname, 'Container.js')),
 		Logs = require(path.join(__dirname, 'Logs.js'));
 		
 // module
@@ -52,7 +52,7 @@
 								clSocketClient
 									.on('child.token.get', function () {
 
-										var sToken = Factory.getConfInstance().getConf().token;
+										var sToken = Container.getConfInstance().getConf().token;
 
 										if (sToken) {
 
@@ -72,7 +72,7 @@
 									})
 									.on('child.token.set', function (token) {
 
-										Factory.getConfInstance().setConfOption('token', token).save()
+										Container.getConfInstance().setConfOption('token', token).save()
 											.then(function () {
 												clSocketClient.emit('child.token.get', token);
 											})

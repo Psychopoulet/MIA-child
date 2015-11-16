@@ -8,7 +8,7 @@
 		
 // module
 	
-	module.exports = function (Factory) {
+	module.exports = function (Container) {
 		
 		// attributes
 			
@@ -17,11 +17,11 @@
 				
 		// constructor
 			
-			Factory.getMIASocketInstance().onDisconnect(function(socket) {
+			Container.getMIASocketInstance().onDisconnect(function(socket) {
 				socket.removeAllListeners('child.youtube.play');
 			});
 
-			Factory.getMIASocketInstance().onConnection(function (socket) {
+			Container.getMIASocketInstance().onConnection(function (socket) {
 
 				socket.on('child.youtube.play', function(data) {
 					

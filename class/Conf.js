@@ -59,9 +59,17 @@
 
 		// constructor
 
-			m_stConf = JSON.parse(fs.readFileSync(m_sConfFile, 'utf8'));
-			m_stConf.miaip = '127.0.0.1';
-			m_stConf.miaport = 1338;
+			try {
+
+				if (fs.lstatSync(m_sConfFile).isFile()) {
+					m_stConf = JSON.parse(fs.readFileSync(m_sConfFile, 'utf8'));
+				}
+
+			}
+			catch (e) { }
+
+			m_stConf.miaip = (m_stConf.miaip) ? m_stConf.miaip : '127.0.0.1';
+			m_stConf.miaport = (m_stConf.miaport) ? m_stConf.miaport : 1338;
 
 	};
 	

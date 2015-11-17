@@ -125,14 +125,14 @@
 				
 		// constructor
 			
-			Container.getMIASocketInstance().onDisconnect(function(socket) {
+			Container.get('server.socket.mia').onDisconnect(function(socket) {
 				socket.removeAllListeners('w3');
 				socket.removeAllListeners('child.warcraftsounds.action.play');
 				socket.removeAllListeners('child.warcraftsounds.music.play');
 				socket.removeAllListeners('child.warcraftsounds.warning.play');
 			});
 
-			Container.getMIASocketInstance().onConnection(function (socket) {
+			Container.get('server.socket.mia').onConnection(function (socket) {
 				
 				socket
 					.on('child.warcraftsounds.action.play', function(p_stData) {

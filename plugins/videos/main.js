@@ -13,22 +13,22 @@
 		// attributes
 			
 			var
-				m_clLog = new Logs(path.join(__dirname, '..', 'logs', 'plugins', 'youtube'));
+				m_clLog = new Logs(path.join(__dirname, '..', 'logs', 'plugins', 'videos'));
 				
 		// constructor
 			
-			Container.getMIASocketInstance().onDisconnect(function(socket) {
-				socket.removeAllListeners('child.youtube.play');
+			Container.get('server.socket.mia').onDisconnect(function(socket) {
+				socket.removeAllListeners('child.videos.play');
 			});
 
-			Container.getMIASocketInstance().onConnection(function (socket) {
+			Container.get('server.socket.mia').onConnection(function (socket) {
 
-				socket.on('child.youtube.play', function(data) {
+				socket.on('child.videos.play', function(data) {
 					
 					exec('cvlc "' + data + '" --play-and-exit', function (error, stdout, stderr) {
 
 						if (null == error) {
-							socket.emit('child.youtube.played');
+							socket.emit('child.videos.played');
 						}
 						else {
 
@@ -37,15 +37,15 @@
 								if (null != error) {
 									
 									if (error.cmd) {
-										socket.emit('child.youtube.error', error.cmd);
+										socket.emit('child.videos.error', error.cmd);
 									}
 									else {
-										socket.emit('child.youtube.error', error);
+										socket.emit('child.videos.error', error);
 									}
 
 								}
 								else {
-									socket.emit('child.youtube.played');
+									socket.emit('child.videos.played');
 								}
 
 							});

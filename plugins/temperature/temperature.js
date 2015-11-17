@@ -7,11 +7,11 @@
 
 		// constructor
 			
-			Container.getMIASocketInstance().onDisconnect(function(socket) {
+			Container.get('server.socket.mia').onDisconnect(function(socket) {
 				socket.removeAllListeners('child.temperature');
 			});
 
-			Container.getMIASocketInstance().onConnection(function (socket) {
+			Container.get('server.socket.mia').onConnection(function (socket) {
 
 				socket.emit('child.temperature', '24.' + (Math.floor(Math.random() * (9 - 0)) + 0));
 

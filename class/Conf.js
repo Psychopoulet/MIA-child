@@ -9,24 +9,26 @@
 	
 	module.exports = function () {
 		
+		"use strict";
+		
 		// attributes
 			
 			var
-				m_clThis = this,
+				that = this,
 				m_sConfFile = require('path').join(__dirname, '..', 'conf.json'),
-				m_stConf = JSON.parse(fs.readFileSync(m_sConfFile), 'utf8');
+				m_stConf = { };
 				
 		// methodes
 			
 			// public
 
-				this.getConf = function () {
-					return m_stConf;
+				this.get = function (p_sKey, p_vValue) {
+					return (m_stConf[p_sKey]) ? m_stConf[p_sKey] : '';
 				};
-				
-				this.setConfOption = function (p_sKey, p_vValue) {
+
+				this.set = function (p_sKey, p_vValue) {
 					m_stConf[p_sKey] = p_vValue;
-					return m_clThis;
+					return that;
 				};
 				
 				this.save = function() {
@@ -54,6 +56,12 @@
 					return deferred.promise;
 
 				}
+
+		// constructor
+
+			m_stConf = JSON.parse(fs.readFileSync(m_sConfFile, 'utf8'));
+			m_stConf.miaip = '127.0.0.1';
+			m_stConf.miaport = 1338;
 
 	};
 	

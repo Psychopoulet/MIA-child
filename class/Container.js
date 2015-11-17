@@ -14,36 +14,53 @@
 	
 	module.exports = {
 
-		getConfInstance : function () {
+		get : function(p_sInstanceName) {
 
-			if (!m_clConfInstance) {
-				var Conf = require(path.join(__dirname, 'Conf.js'));
-				m_clConfInstance = new Conf();
+			switch(p_sInstanceName) {
+
+				case 'conf':
+
+					if (!m_clConfInstance) {
+						var Conf = require(path.join(__dirname, 'Conf.js'));
+						m_clConfInstance = new Conf();
+					}
+
+					return m_clConfInstance;
+
+				break;
+
+				case 'plugins':
+
+					if (!m_clPluginsInstance) {
+						var Plugins = require(path.join(__dirname, 'Plugins.js'));
+						m_clPluginsInstance = new Plugins();
+					}
+
+					return m_clPluginsInstance;
+
+				break;
+
+				case 'server.socket.mia':
+
+					if (!m_clMIASocketInstance) {
+						var MIASocket = require(path.join(__dirname, 'MIASocket.js'));
+						m_clMIASocketInstance = new MIASocket();
+					}
+
+					return m_clMIASocketInstance;
+
+				break;
+
+				// errors
+
+				case '':
+					throw "Container : empty module";
+				break;
+				default:
+					throw "Container : unknown module '" + p_sInstanceName + "'";
+				break;
+				
 			}
-
-			return m_clConfInstance;
-
-		},
-
-		getPluginsInstance : function () {
-
-			if (!m_clPluginsInstance) {
-				var Plugins = require(path.join(__dirname, 'Plugins.js'));
-				m_clPluginsInstance = new Plugins();
-			}
-
-			return m_clPluginsInstance;
-
-		},
-
-		getMIASocketInstance : function () {
-
-			if (!m_clMIASocketInstance) {
-				var MIASocket = require(path.join(__dirname, 'MIASocket.js'));
-				m_clMIASocketInstance = new MIASocket();
-			}
-
-			return m_clMIASocketInstance;
 
 		}
 	

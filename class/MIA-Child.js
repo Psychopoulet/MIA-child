@@ -31,7 +31,7 @@
 
 							// plugins
 
-								Container.getPluginsInstance().getData()
+								Container.get('plugins').getData()
 									.then(function(p_tabData) {
 
 										p_tabData.forEach(function(p_stPlugin) {
@@ -52,7 +52,7 @@
 
 							// start
 								
-								Container.getMIASocketInstance().start(Container.getConfInstance().getConf().miaip, Container.getConfInstance().getConf().miaport)
+								Container.get('server.socket.mia').start()
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 									
@@ -66,12 +66,8 @@
 				};
 				
 				this.stop = function () {
-					return Container.getMIASocketInstance().stop();
+					return Container.get('server.socket.mia').stop();
 				};
 				
-				this.getVersion = function () {
-					return '0.0.1'
-				};
-
 	};
 	

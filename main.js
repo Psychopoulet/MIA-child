@@ -1,3 +1,4 @@
+"use strict";
 
 // dépendances
 
@@ -6,12 +7,9 @@
 // run
 
 	try {
-		
 		new Launcher();
-		
 	}
 	catch (e) {
-		console.log('Global script failed : ');
-		console.log(e);
+		console.log('Global script failed : ' + ((e.message) ? e.message : e));
 	}
 	

@@ -86,20 +86,20 @@
 
 				}
 			
-				function _play(p_sUrl) {
+				function _play(p_sSound) {
 					
 					var deferred = q.defer();
 
 						try {
 
-							exec('cvlc "' + p_sUrl + '" --play-and-exit', function (err, stdout, stderr) {
+							exec('cvlc "' + p_sSound + '" --play-and-exit', function (err, stdout, stderr) {
 
 								if (!err) {
 									deferred.resolve();
 								}
 								else {
 
-									exec('vlc "' + p_sUrl + '" --play-and-exit', function (err, stdout, stderr) {
+									exec('vlc "' + p_sSound + '" --play-and-exit', function (err, stdout, stderr) {
 
 										if (err) {
 											deferred.reject(stderr);

@@ -6,6 +6,7 @@
 		fs = require('fs'),
 		q = require('q'),
 		http = require('http'),
+		https = require('https'),
 		mkdirp = require('mkdirp'),
 		exec = require('child_process').exec,
 		Logs = require(path.join(__dirname, '..', '..', 'class', 'Logs.js'));
@@ -17,7 +18,7 @@
 		// attributes
 			
 			var
-				m_sVideosPath = path.join(__dirname, 'videos'),
+				m_sVideosPath = path.join(__dirname, 'backups'),
 				m_clLog = new Logs(path.join(__dirname, '..', 'logs', 'plugins', 'videos'));
 				
 		// methods
@@ -41,12 +42,14 @@
 
 								mkdirp(path.dirname(p_sVideoPath), function (err) {
 
+									var clHTTP = (0 >= p_sUrl.indexOf('https')) ? https : http;
+
 									if (err) {
 										deferred.reject((err.message) ? err.message : err);
 									}
 									else {
 
-										http.get(p_sUrl, function(res) {
+										clHTTP.get(p_sUrl, function(res) {
 
 											var sStatusCode = res.statusCode + '', sResponse = '';
 											var clFile = fs.createWriteStream(p_sVideoPath);
@@ -131,15 +134,9 @@
 
 			Container.get('server.socket.mia').onConnection(function (socket) {
 
-				console.log('onConnection');
-
 				socket.on('child.videos.play', function(p_stData) {
 
-					console.log(p_stData);
-
-					var sVideoPath = path.join(m_sSoundsPath, 'videos', 'youtube', p_stData.code + '.mp3');
-
-					console.log(sVideoPath);
+					var sVideoPath = path.join(m_sVideosPath, 'youtube', p_stData.code + '.mp4');
 
 					try {
 
@@ -160,11 +157,8 @@
 					}
 					catch (e) {
 
-						console.log('_download');
-
 						_download(p_stData.url, sVideoPath)
 							.then(function () {
-								console.log('downloaded');
 								socket.emit('child.videos.downloaded', p_stData);
 							})
 							.catch(function (e) {
@@ -174,7 +168,6 @@
 
 						_play(p_stData.urlembeded)
 							.then(function () {
-								console.log('played');
 								m_clLog.log('child.videos.played : ' + p_stData.name);
 								socket.emit('child.videos.played', p_stData);
 							})

@@ -52,7 +52,7 @@
 								clSocketClient
 									.on('child.token.get', function () {
 
-										var sToken = Container.get('conf').get('token').token;
+										var sToken = Container.get('conf').get('token');
 
 										if (sToken) {
 

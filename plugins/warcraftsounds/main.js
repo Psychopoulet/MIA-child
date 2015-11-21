@@ -17,7 +17,7 @@
 		// attributes
 			
 			var
-				m_sSoundsPath = path.join(__dirname, 'sounds'),
+				m_sSoundsPath = path.join(__dirname, 'backups'),
 				m_clLog = new Logs(path.join(__dirname, '..', 'logs', 'plugins', 'warcraftsounds'));
 				
 		// methods

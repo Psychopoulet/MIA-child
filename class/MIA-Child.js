@@ -24,32 +24,10 @@
 				
 				this.start = function () {
 
-					var
-						deferred = q.defer(),
-						sPluginsPath = path.join(__dirname, '..', 'plugins');
+					var deferred = q.defer();
 
 						try {
 
-							// plugins
-
-								Container.get('plugins').getData()
-									.then(function(p_tabData) {
-
-										p_tabData.forEach(function(p_stPlugin) {
-
-											try {
-												require(p_stPlugin.main)(Container);
-												m_clLog.success('-- [plugin] ' + p_stPlugin.name + ' loaded');
-											}
-											catch (e) {
-												m_clLog.err((e.message) ? e.message : e);
-											}
-
-										});
-
-									})
-									.catch(deferred.reject);
-										
 							// start
 								
 								Container.get('server.socket.mia').start()
@@ -59,13 +37,25 @@
 							// sockets
 								
 								Container.get('server.socket.mia')
+
 									.onDisconnect(function (socket) {
 
-										socket.removeAllListeners('child.videos.play');
+										socket.removeAllListeners('child.sounds.play');
 										socket.removeAllListeners('child.sounds.play');
 										
 									})
+
 									.onConnection(function (socket) {
+
+										
+
+										socket.emit('child.temperature', '22.' + (Math.floor(Math.random() * (9 - 0)) + 0));
+
+										setInterval(function() {
+											socket.emit('child.temperature', '22.' + (Math.floor(Math.random() * (9 - 0)) + 0));
+										}, 5000);
+
+
 
 										socket.on('child.videos.play', function(video) {
 

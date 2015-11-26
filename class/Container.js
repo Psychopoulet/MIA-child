@@ -7,7 +7,6 @@
 
 	var
 		m_clConfInstance = false,
-		m_clPluginsInstance = false,
 		m_clMIASocketInstance = false;
 
 // module
@@ -26,17 +25,6 @@
 					}
 
 					return m_clConfInstance;
-
-				break;
-
-				case 'plugins':
-
-					if (!m_clPluginsInstance) {
-						var Plugins = require(path.join(__dirname, 'Plugins.js'));
-						m_clPluginsInstance = new Plugins();
-					}
-
-					return m_clPluginsInstance;
 
 				break;
 

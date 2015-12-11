@@ -1,3 +1,4 @@
 *.tmp
+*backups
 conf.json
 node_modules/

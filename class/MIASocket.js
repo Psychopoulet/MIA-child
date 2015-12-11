@@ -5,7 +5,7 @@
 		path = require('path'),
 		q = require('q'),
 		
-		Factory = require(path.join(__dirname, 'Factory.js')),
+		Container = require(path.join(__dirname, 'Container.js')),
 		Logs = require(path.join(__dirname, 'Logs.js'));
 		
 // module
@@ -24,13 +24,13 @@
 		
 			// public
 				
-				this.start = function (p_sIP, p_nPort) {
+				this.start = function () {
 					
-					var deferred = q.defer();
+					var deferred = q.defer(), sAddress = 'http://' + Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport');
 
 						try {
 
-							var clSocketClient = require('socket.io-client').connect('http://' + p_sIP + ':' + p_nPort);
+							var clSocketClient = require('socket.io-client').connect(sAddress);
 
 							clSocketClient.on('connect', function () {
 
@@ -52,7 +52,7 @@
 								clSocketClient
 									.on('child.token.get', function () {
 
-										var sToken = Factory.getConfInstance().getConf().token;
+										var sToken = Container.get('conf').get('token');
 
 										if (sToken) {
 
@@ -72,7 +72,7 @@
 									})
 									.on('child.token.set', function (token) {
 
-										Factory.getConfInstance().setConfOption('token', token).save()
+										Container.get('conf').set('token', token).save()
 											.then(function () {
 												clSocketClient.emit('child.token.get', token);
 											})
@@ -84,7 +84,7 @@
 					
 							});
 
-							m_clLog.success('-- [MIA socket] started');
+							m_clLog.success('-- [MIA socket] started on ' + sAddress);
 							
 							deferred.resolve();
 

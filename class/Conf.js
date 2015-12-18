@@ -70,6 +70,7 @@
 
 			m_stConf.miaip = (m_stConf.miaip) ? m_stConf.miaip : '127.0.0.1';
 			m_stConf.miaport = (m_stConf.miaport) ? m_stConf.miaport : 1338;
+			m_stConf.debug = false;
 
 	};
 	

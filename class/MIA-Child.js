@@ -93,79 +93,86 @@
 												}
 
 												socket.on('child.child.login.error', function(err) {
-													m_clLog.err('[MIA] : login failed (' + err + ')');
+													deferred.reject('[MIA] : login failed (' + ((err.message) ? err.message : err) + ')');
 												})
 
-												.on('child.child.logged', function() {
+												.on('child.child.logged', function(child) {
 
-													m_clLog.success('[MIA] : logged');
+													conf.set('token', child.token).save().then(function() {
 
-													socket.on('child.video.play', function(video) {
+														m_clLog.success('[MIA] : logged');
 
-														try {
+														socket.on('child.video.play', function(video) {
 
-															if (!video.url || '' == video.url) {
-																socket.emit('child.video.error', 'Url missing');
+															try {
+
+																if (!video.url || '' == video.url) {
+																	socket.emit('child.video.error', 'Url missing');
+																}
+																else {
+
+																	exec('vlc "' + video.url + '" --play-and-exit', function (err, stdout, stderr) {
+
+																		if (err) {
+																			socket.emit('child.video.error', (err.message) ? err.message : err);
+																		}
+																		else {
+																			socket.emit('child.video.played', video);
+																		}
+
+																	});
+
+																}
+
 															}
-															else {
+															catch(e) {
+																socket.emit('child.video.error', (e.message) ? e.message : e);
+															}
+									
+														})
+														.on('child.sound.play', function(sound) {
 
-																exec('vlc "' + video.url + '" --play-and-exit', function (err, stdout, stderr) {
+															try {
 
-																	if (err) {
-																		socket.emit('child.video.error', (err.message) ? err.message : err);
-																	}
-																	else {
-																		socket.emit('child.video.played', video);
-																	}
+																if (!sound.url || '' == sound.url) {
+																	socket.emit('child.sound.error', 'Url missing');
+																}
+																else {
 
-																});
+																	exec('cvlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
+
+																		if (!err) {
+																			socket.emit('child.sound.played', sound);
+																		}
+																		else {
+
+																			exec('vlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
+
+																				if (err) {
+																					socket.emit('child.sound.error', (err.message) ? err.message : err);
+																				}
+																				else {
+																					socket.emit('child.sound.played', sound);
+																				}
+
+																			});
+
+																		}
+												
+																	});
+
+																}
 
 															}
+															catch(e) {
+																socket.emit('child.sound.error', (e.message) ? e.message : e);
+															}
+									
+														});
 
-														}
-														catch(e) {
-															socket.emit('child.video.error', (e.message) ? e.message : e);
-														}
-								
 													})
-													.on('child.sound.play', function(sound) {
-
-														try {
-
-															if (!sound.url || '' == sound.url) {
-																socket.emit('child.sound.error', 'Url missing');
-															}
-															else {
-
-																exec('cvlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
-
-																	if (!err) {
-																		socket.emit('child.sound.played', sound);
-																	}
-																	else {
-
-																		exec('vlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
-
-																			if (err) {
-																				socket.emit('child.sound.error', (err.message) ? err.message : err);
-																			}
-																			else {
-																				socket.emit('child.sound.played', sound);
-																			}
-
-																		});
-
-																	}
-											
-																});
-
-															}
-
-														}
-														catch(e) {
-															socket.emit('child.sound.error', (e.message) ? e.message : e);
-														}
-								
+													.catch(function(e) {
+														deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
 													});
 
 												})

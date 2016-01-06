@@ -33,12 +33,7 @@
 
 							var clSocketClient = require('socket.io-client').connect(sAddress);
 
-							console.log(sAddress);
-							console.log(clSocketClient);
-
 							clSocketClient.on('connect', function () {
-
-								console.log('connected');
 
 								m_clLog.success('-- [MIA socket] connected');
 

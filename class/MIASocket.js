@@ -15,8 +15,9 @@
 		// attributes
 			
 			var
-				m_clThis = this,
-				m_clLog = new Logs(path.join(__dirname, '..', 'logs')),
+				that = this,
+				conf = Container.get('conf'),
+				m_clLog = new Logs(path.join(__dirname, '..', 'socket')),
 				m_tabOnConnection = [],
 				m_tabOnDisconnect = [];
 
@@ -26,13 +27,18 @@
 				
 				this.start = function () {
 					
-					var deferred = q.defer(), sAddress = 'http://' + Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport');
+					var deferred = q.defer(), sAddress = 'http' + ((conf.get('ssl')) ? 's' : '') + '://' + conf.get('miaip') + ':' + conf.get('miaport');
 
 						try {
 
 							var clSocketClient = require('socket.io-client').connect(sAddress);
 
+							console.log(sAddress);
+							console.log(clSocketClient);
+
 							clSocketClient.on('connect', function () {
+
+								console.log('connected');
 
 								m_clLog.success('-- [MIA socket] connected');
 
@@ -40,48 +46,12 @@
 
 									m_clLog.info('-- [MIA socket] disconnected');
 
-									clSocketClient.removeAllListeners('child.token.get');
-									clSocketClient.removeAllListeners('child.token.set');
-
 									m_tabOnDisconnect.forEach(function (fOnDisconnect) {
 										fOnDisconnect(clSocketClient);
 									});
 
 								});
 
-								clSocketClient
-									.on('child.token.get', function () {
-
-										var sToken = Container.get('conf').get('token');
-
-										if (sToken) {
-
-											m_clLog.success('-- [MIA socket] get token \'' + sToken + '\'');
-
-											clSocketClient.emit('child.token.get', sToken);
-
-											m_tabOnConnection.forEach(function (fOnConnection) {
-												fOnConnection(clSocketClient);
-											});
-
-										}
-										else {
-											clSocketClient.emit('child.token.empty');
-										}
-
-									})
-									.on('child.token.set', function (token) {
-
-										Container.get('conf').set('token', token).save()
-											.then(function () {
-												clSocketClient.emit('child.token.get', token);
-											})
-											.catch(function (err) {
-												clSocketClient.emit('child.token.error', err);
-											});
-
-									});
-					
 							});
 
 							m_clLog.success('-- [MIA socket] started on ' + sAddress);
@@ -118,7 +88,7 @@
 						m_tabOnConnection.push(p_fCallback);
 					}
 					
-					return m_clThis;
+					return that;
 					
 				};
 				
@@ -128,7 +98,7 @@
 						m_tabOnDisconnect.push(p_fCallback);
 					}
 					
-					return m_clThis;
+					return that;
 					
 				};
 				

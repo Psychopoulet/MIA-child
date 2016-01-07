@@ -47,6 +47,10 @@
 
 								});
 
+								m_tabOnConnection.forEach(function (fOnConnection) {
+									fOnConnection(clSocketClient);
+								});
+								
 							});
 
 							m_clLog.success('-- [MIA socket] started on ' + sAddress);

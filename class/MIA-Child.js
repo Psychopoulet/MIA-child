@@ -72,113 +72,111 @@
 
 									// sockets
 										
-										Container.get('server.socket.mia')
+										Container.get('server.socket.mia').onDisconnect(function (socket) {
 
-											.onDisconnect(function (socket) {
+											socket.removeAllListeners('login.error');
+											socket.removeAllListeners('logged');
 
-												socket.removeAllListeners('child.child.login.error');
-												socket.removeAllListeners('child.child.logged');
+											socket.removeAllListeners('media.sound.play');
+											socket.removeAllListeners('media.video.play');
+											
+										})
 
-												socket.removeAllListeners('child.sound.play');
-												socket.removeAllListeners('child.video.play');
-												
+										.onConnection(function (socket) {
+
+											var token = conf.get('token');
+
+											if (token) {
+												socket.emit('login', { token : token });
+											}
+
+											socket.on('login.error', function(err) {
+												deferred.reject('[MIA] : login failed (' + ((err.message) ? err.message : err) + ')');
 											})
 
-											.onConnection(function (socket) {
+											.on('logged', function(child) {
 
-												var token = conf.get('token');
+												conf.set('token', child.token).save().then(function() {
 
-												if (token) {
-													socket.emit('child.child.login', { token : token });
-												}
+													m_clLog.success('[MIA] : logged');
 
-												socket.on('child.child.login.error', function(err) {
-													deferred.reject('[MIA] : login failed (' + ((err.message) ? err.message : err) + ')');
-												})
+													socket.on('media.sound.play', function(sound) {
 
-												.on('child.child.logged', function(child) {
+														try {
 
-													conf.set('token', child.token).save().then(function() {
+															if (!sound.url || '' == sound.url) {
+																socket.emit('media.sound.error', 'Url missing');
+															}
+															else {
 
-														m_clLog.success('[MIA] : logged');
+																exec('cvlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
 
-														socket.on('child.video.play', function(video) {
+																	if (!err) {
+																		socket.emit('media.sound.played', sound);
+																	}
+																	else {
 
-															try {
+																		exec('vlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
 
-																if (!video.url || '' == video.url) {
-																	socket.emit('child.video.error', 'Url missing');
-																}
-																else {
+																			if (err) {
+																				socket.emit('media.sound.error', (err.message) ? err.message : err);
+																			}
+																			else {
+																				socket.emit('media.sound.played', sound);
+																			}
 
-																	exec('vlc "' + video.url + '" --play-and-exit', function (err, stdout, stderr) {
+																		});
 
-																		if (err) {
-																			socket.emit('child.video.error', (err.message) ? err.message : err);
-																		}
-																		else {
-																			socket.emit('child.video.played', video);
-																		}
-
-																	});
-
-																}
+																	}
+											
+																});
 
 															}
-															catch(e) {
-																socket.emit('child.video.error', (e.message) ? e.message : e);
-															}
-									
-														})
-														.on('child.sound.play', function(sound) {
 
-															try {
-
-																if (!sound.url || '' == sound.url) {
-																	socket.emit('child.sound.error', 'Url missing');
-																}
-																else {
-
-																	exec('cvlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
-
-																		if (!err) {
-																			socket.emit('child.sound.played', sound);
-																		}
-																		else {
-
-																			exec('vlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
-
-																				if (err) {
-																					socket.emit('child.sound.error', (err.message) ? err.message : err);
-																				}
-																				else {
-																					socket.emit('child.sound.played', sound);
-																				}
-
-																			});
-
-																		}
-												
-																	});
-
-																}
-
-															}
-															catch(e) {
-																socket.emit('child.sound.error', (e.message) ? e.message : e);
-															}
-									
-														});
-
+														}
+														catch(e) {
+															socket.emit('media.sound.error', (e.message) ? e.message : e);
+														}
+								
 													})
-													.catch(function(e) {
-														deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
+													.on('media.video.play', function(video) {
+
+														try {
+
+															if (!video.url || '' == video.url) {
+																socket.emit('media.video.error', 'Url missing');
+															}
+															else {
+
+																exec('vlc "' + video.url + '" --fullscreen --overlay --video-on-top --play-and-exit', function (err, stdout, stderr) {
+
+																	if (err) {
+																		socket.emit('media.video.error', (err.message) ? err.message : err);
+																	}
+																	else {
+																		socket.emit('media.video.played', video);
+																	}
+
+																});
+
+															}
+
+														}
+														catch(e) {
+															socket.emit('media.video.error', (e.message) ? e.message : e);
+														}
+								
 													});
 
 												})
+												.catch(function(e) {
+													deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
+												});
 
-											});
-								
+											})
+
+										});
+							
 								})
 								.catch(function(e) {
 									deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));

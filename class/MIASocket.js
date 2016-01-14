@@ -3,21 +3,19 @@
 	
 	var
 		path = require('path'),
-		q = require('q'),
-		
-		Container = require(path.join(__dirname, 'Container.js')),
-		Logs = require(path.join(__dirname, 'Logs.js'));
+		q = require('q');
 		
 // module
 	
-	module.exports = function () {
+	module.exports = function (Container) {
 
 		// attributes
 			
 			var
 				that = this,
 				conf = Container.get('conf'),
-				m_clLog = new Logs(path.join(__dirname, '..', 'socket')),
+				logs = Container.get('logs'),
+				m_clLog = new logs(path.join(__dirname, '..', 'socket')),
 				m_tabOnConnection = [],
 				m_tabOnDisconnect = [];
 

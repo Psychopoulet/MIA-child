@@ -5,24 +5,22 @@
 
 		path = require('path'),
 		q = require('q'),
-		exec = require('child_process').exec,
-
-		Container = require(path.join(__dirname, 'Container.js')),
-		Logs = require(path.join(__dirname, 'Logs.js'));
+		exec = require('child_process').exec;
 		
 // module
 	
-	module.exports = function () {
-		
+	module.exports = function (Container) {
+
 		// attributes
 			
 			var 
 				that = this,
 				conf = Container.get('conf'),
-				m_clLog = new Logs(path.join(__dirname, '..', 'child'));
+				logs = Container.get('logs'),
+				m_clLog = new logs(path.join(__dirname, '..', 'child'));
 				
 		// methodes
-			
+
 			// public
 				
 				this.start = function () {
@@ -66,13 +64,13 @@
 
 									// start
 										
-										Container.get('server.socket.mia').start()
+										Container.get('miasocket').start()
 											.then(deferred.resolve)
 											.catch(deferred.reject);
 
 									// sockets
 										
-										Container.get('server.socket.mia').onDisconnect(function (socket) {
+										Container.get('miasocket').onDisconnect(function (socket) {
 
 											socket.removeAllListeners('login.error');
 											socket.removeAllListeners('logged');
@@ -195,7 +193,7 @@
 				};
 				
 				this.stop = function () {
-					return Container.get('server.socket.mia').stop();
+					return Container.get('miasocket').stop();
 				};
 				
 	};

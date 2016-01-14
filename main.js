@@ -22,7 +22,7 @@
 					.set('miasocket', new MIASocket(Container));
 
 		new Child(Container).start()
-		.catch(function (err) { new Logs(__dirname).err(err); });
+			.catch(function (err) { new Logs(__dirname).err(err); });
 		
 	}
 	catch (e) {

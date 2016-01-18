@@ -15,7 +15,6 @@
 			
 			var 
 				that = this,
-				conf = Container.get('conf'),
 				logs = Container.get('logs'),
 				m_clLog = new logs(path.join(__dirname, '..', 'child'));
 				
@@ -29,9 +28,9 @@
 
 						try {
 
-							if (!conf.initialized()) {
+							if (!Container.get('conf').fileExists()) {
 
-								conf.set('miaip', 'localhost')
+								Container.get('conf').set('miaip', 'localhost')
 									.set('miaport', 1338)
 									.set('debug', false)
 									.set('ssl', false)
@@ -42,9 +41,9 @@
 
 							}
 
-							conf.load().then(function() {
+							Container.get('conf').load().then(function() {
 
-								var nPreviousPID = conf.get('pid');
+								var nPreviousPID = Container.get('conf').get('pid');
 
 								if (-1 < nPreviousPID) {
 
@@ -58,7 +57,7 @@
 
 								}
 
-								conf.set('pid', process.pid).save().then(function() {
+								Container.get('conf').set('pid', process.pid).save().then(function() {
 
 									m_clLog.log('[START ' + process.pid + ']');
 
@@ -82,7 +81,7 @@
 
 										.onConnection(function (socket) {
 
-											var token = conf.get('token');
+											var token = Container.get('conf').get('token');
 
 											if (token) {
 												socket.emit('login', { token : token });
@@ -94,7 +93,7 @@
 
 											.on('logged', function(child) {
 
-												conf.set('token', child.token).save().then(function() {
+												Container.get('conf').set('token', child.token).save().then(function() {
 
 													m_clLog.success('[MIA] : logged');
 

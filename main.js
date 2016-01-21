@@ -5,9 +5,9 @@
 	var 
 		path = require('path'),
 		simplecontainer = require('simplecontainer'),
+		simpleconfig = require('simpleconfig'),
 		
 		Logs = require(path.join(__dirname, 'class', 'Logs.js')),
-		Conf = require(path.join(__dirname, 'class', 'Conf.js')),
 		MIASocket = require(path.join(__dirname, 'class', 'MIASocket.js')),
 		Child = require(path.join(__dirname, 'class', 'MIA-Child.js'));
 
@@ -17,7 +17,7 @@
 
 		var Container = new simplecontainer();
 
-		Container	.set('conf', new Conf())
+		Container	.set('conf', new simpleconfig(path.join(__dirname, 'conf.json')))
 					.set('logs', Logs)
 					.set('miasocket', new MIASocket(Container));
 

@@ -11,11 +11,7 @@
 
 		// attributes
 			
-			var
-				that = this,
-				conf = Container.get('conf'),
-				logs = Container.get('logs'),
-				m_clLog = new logs(path.join(__dirname, '..', 'socket')),
+			var that = this,
 				m_tabOnConnection = [],
 				m_tabOnDisconnect = [];
 
@@ -25,7 +21,7 @@
 				
 				this.start = function () {
 					
-					var deferred = q.defer(), sAddress = 'http' + ((conf.get('ssl')) ? 's' : '') + '://' + conf.get('miaip') + ':' + conf.get('miaport');
+					var deferred = q.defer(), sAddress = 'http' + ((Container.get('conf').get('ssl')) ? 's' : '') + '://' + Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport');
 
 						try {
 
@@ -33,11 +29,11 @@
 
 							clSocketClient.on('connect', function () {
 
-								m_clLog.success('-- [MIA socket] connected');
+								Container.get('logs').success('-- [MIA socket] connected');
 
 								clSocketClient.on('disconnect', function () {
 
-									m_clLog.info('-- [MIA socket] disconnected');
+									Container.get('logs').info('-- [MIA socket] disconnected');
 
 									m_tabOnDisconnect.forEach(function (fOnDisconnect) {
 										fOnDisconnect(clSocketClient);
@@ -51,7 +47,7 @@
 								
 							});
 
-							m_clLog.success('-- [MIA socket] started on ' + sAddress);
+							Container.get('logs').success('-- [MIA socket] started on ' + sAddress);
 							
 							deferred.resolve();
 

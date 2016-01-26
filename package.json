@@ -9,12 +9,12 @@
     "url": "git://github.com/Psychopoulet/MIA-child"
   },
   "dependencies": {
-    "colors": "^1.1.2",
     "mkdirp": "^0.5.1",
     "q": "^1.4.1",
     "socket.io-client": "^1.3.6",
-    "simplecontainer": "^1.0.1",
-    "simpleconfig": "^1.0.0"
+    "simplecontainer": "^1.1.1",
+    "simpleconfig": "^1.1.1",
+    "simplelogs": "^1.0.1"
   },
   "devDependencies": {},
   "author": "Sébastien VIDAL",

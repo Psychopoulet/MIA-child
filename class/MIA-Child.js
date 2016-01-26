@@ -13,10 +13,7 @@
 
 		// attributes
 			
-			var 
-				that = this,
-				logs = Container.get('logs'),
-				m_clLog = new logs(path.join(__dirname, '..', 'child'));
+			var that = this;
 				
 		// methodes
 
@@ -28,157 +25,137 @@
 
 						try {
 
-							if (!Container.get('conf').fileExists()) {
+						var nPreviousPID = Container.get('conf').get('pid');
 
-								Container.get('conf').set('miaip', 'localhost')
-									.set('miaport', 1338)
-									.set('debug', false)
-									.set('ssl', false)
-									.set('pid', -1)
-									.set('token', '')
+						if (-1 < nPreviousPID) {
 
-									.save();
+							try {
+
+								process.kill(nPreviousPID);
+								Container.get('logs').err('[END ' + nPreviousPID + ']');
 
 							}
+							catch (e) { }
 
-							Container.get('conf').load().then(function() {
+						}
 
-								var nPreviousPID = Container.get('conf').get('pid');
+						Container.get('conf').set('pid', process.pid).save().then(function() {
 
-								if (-1 < nPreviousPID) {
+							Container.get('logs').success('[START ' + process.pid + ']');
 
-									try {
-
-										process.kill(nPreviousPID);
-										m_clLog.log('[END ' + nPreviousPID + ']');
-
-									}
-									catch (e) { }
-
-								}
-
-								Container.get('conf').set('pid', process.pid).save().then(function() {
-
-									m_clLog.log('[START ' + process.pid + ']');
-
-									// start
-										
-										Container.get('miasocket').start()
-											.then(deferred.resolve)
-											.catch(deferred.reject);
-
-									// sockets
-										
-										Container.get('miasocket').onDisconnect(function (socket) {
-
-											socket.removeAllListeners('login.error');
-											socket.removeAllListeners('logged');
-
-											socket.removeAllListeners('media.sound.play');
-											socket.removeAllListeners('media.video.play');
-											
-										})
-
-										.onConnection(function (socket) {
-
-											var token = Container.get('conf').get('token');
-
-											if (token) {
-												socket.emit('login', { token : token });
-											}
-
-											socket.on('login.error', function(err) {
-												deferred.reject('[MIA] : login failed (' + ((err.message) ? err.message : err) + ')');
-											})
-
-											.on('logged', function(child) {
-
-												Container.get('conf').set('token', child.token).save().then(function() {
-
-													m_clLog.success('[MIA] : logged');
-
-													socket.on('media.sound.play', function(sound) {
-
-														try {
-
-															if (!sound.url || '' == sound.url) {
-																socket.emit('media.sound.error', 'Url missing');
-															}
-															else {
-
-																exec('cvlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
-
-																	if (!err) {
-																		socket.emit('media.sound.played', sound);
-																	}
-																	else {
-
-																		exec('vlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
-
-																			if (err) {
-																				socket.emit('media.sound.error', (err.message) ? err.message : err);
-																			}
-																			else {
-																				socket.emit('media.sound.played', sound);
-																			}
-
-																		});
-
-																	}
-											
-																});
-
-															}
-
-														}
-														catch(e) {
-															socket.emit('media.sound.error', (e.message) ? e.message : e);
-														}
+							// start
 								
-													})
-													.on('media.video.play', function(video) {
+								Container.get('miasocket').start()
+									.then(deferred.resolve)
+									.catch(deferred.reject);
 
-														try {
+							// sockets
+								
+								Container.get('miasocket').onDisconnect(function (socket) {
 
-															if (!video.url || '' == video.url) {
-																socket.emit('media.video.error', 'Url missing');
+									socket.removeAllListeners('login.error');
+									socket.removeAllListeners('logged');
+
+									socket.removeAllListeners('media.sound.play');
+									socket.removeAllListeners('media.video.play');
+									
+								})
+
+								.onConnection(function (socket) {
+
+									var token = Container.get('conf').get('token');
+
+									if (token) {
+										socket.emit('login', { token : token });
+									}
+
+									socket.on('login.error', function(err) {
+										deferred.reject('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
+									})
+
+									.on('logged', function(child) {
+
+										Container.get('conf').set('token', child.token).save().then(function() {
+
+											Container.get('logs').success('-- [MIA-Child] : logged');
+
+											socket.on('media.sound.play', function(sound) {
+
+												try {
+
+													if (!sound.url || '' == sound.url) {
+														socket.emit('media.sound.error', 'Url missing');
+													}
+													else {
+
+														exec('cvlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
+
+															if (!err) {
+																socket.emit('media.sound.played', sound);
 															}
 															else {
 
-																exec('vlc "' + video.url + '" --fullscreen --overlay --video-on-top --play-and-exit', function (err, stdout, stderr) {
+																exec('vlc "' + sound.url + '" --play-and-exit', function (err, stdout, stderr) {
 
 																	if (err) {
-																		socket.emit('media.video.error', (err.message) ? err.message : err);
+																		socket.emit('media.sound.error', (err.message) ? err.message : err);
 																	}
 																	else {
-																		socket.emit('media.video.played', video);
+																		socket.emit('media.sound.played', sound);
 																	}
 
 																});
 
 															}
+									
+														});
 
-														}
-														catch(e) {
-															socket.emit('media.video.error', (e.message) ? e.message : e);
-														}
-								
-													});
+													}
 
-												})
-												.catch(function(e) {
-													deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
-												});
-
+												}
+												catch(e) {
+													socket.emit('media.sound.error', (e.message) ? e.message : e);
+												}
+						
 											})
+											.on('media.video.play', function(video) {
 
+												try {
+
+													if (!video.url || '' == video.url) {
+														socket.emit('media.video.error', 'Url missing');
+													}
+													else {
+
+														exec('vlc "' + video.url + '" --fullscreen --overlay --video-on-top --play-and-exit', function (err, stdout, stderr) {
+
+															if (err) {
+																socket.emit('media.video.error', (err.message) ? err.message : err);
+															}
+															else {
+																socket.emit('media.video.played', video);
+															}
+
+														});
+
+													}
+
+												}
+												catch(e) {
+													socket.emit('media.video.error', (e.message) ? e.message : e);
+												}
+						
+											});
+
+										})
+										.catch(function(e) {
+											deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
 										});
-							
-								})
-								.catch(function(e) {
-									deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
+
+									})
+
 								});
-								
+					
 							})
 							.catch(deferred.reject);
 

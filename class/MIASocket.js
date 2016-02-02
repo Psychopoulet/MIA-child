@@ -1,9 +1,7 @@
 
 // dépendances
 	
-	var
-		path = require('path'),
-		q = require('q');
+	const q = require('q');
 		
 // module
 	
@@ -21,9 +19,17 @@
 				
 				this.start = function () {
 					
-					var deferred = q.defer(), sAddress = 'http' + ((Container.get('conf').get('ssl')) ? 's' : '') + '://' + Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport');
+					var deferred = q.defer(), sAddress = Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport');
 
 						try {
+
+							if (Container.get('conf').get('ssl')) {
+								require('https').globalAgent.options.rejectUnauthorized = false;
+								sAddress = 'https://' + sAddress;
+							}
+							else {
+								sAddress = 'http://' + sAddress;
+							}
 
 							var clSocketClient = require('socket.io-client').connect(sAddress);
 

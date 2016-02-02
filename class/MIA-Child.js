@@ -1,11 +1,8 @@
 
 // dépendances
 	
-	var
-
-		path = require('path'),
-		q = require('q'),
-		exec = require('child_process').exec;
+	const	q = require('q'),
+			exec = require('child_process').exec;
 		
 // module
 	
@@ -25,32 +22,30 @@
 
 						try {
 
-						var nPreviousPID = Container.get('conf').get('pid');
+							if (Container.get('conf').has('pid')) {
 
-						if (-1 < nPreviousPID) {
+								try {
 
-							try {
+									process.kill(Container.get('conf').get('pid'));
+									Container.get('logs').success('[END PROCESS ' + Container.get('conf').get('pid') + ']');
 
-								process.kill(nPreviousPID);
-								Container.get('logs').err('[END ' + nPreviousPID + ']');
+								}
+								catch (e) { }
 
 							}
-							catch (e) { }
 
-						}
+							Container.get('conf').set('pid', process.pid).save().then(function() {
 
-						Container.get('conf').set('pid', process.pid).save().then(function() {
+								Container.get('logs').success('[START ' + process.pid + ']');
 
-							Container.get('logs').success('[START ' + process.pid + ']');
-
-							// start
+								// start
 								
 								Container.get('miasocket').start()
 									.then(deferred.resolve)
 									.catch(deferred.reject);
 
-							// sockets
-								
+								// sockets
+									
 								Container.get('miasocket').onDisconnect(function (socket) {
 
 									socket.removeAllListeners('login.error');
@@ -155,7 +150,7 @@
 									})
 
 								});
-					
+				
 							})
 							.catch(deferred.reject);
 

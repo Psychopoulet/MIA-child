@@ -19,19 +19,19 @@
 				
 				this.start = function () {
 					
-					var deferred = q.defer(), sAddress = Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport');
+					var deferred = q.defer(), sAddress = Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport'), clSocketClient;
 
 						try {
 
 							if (Container.get('conf').get('ssl')) {
 								require('https').globalAgent.options.rejectUnauthorized = false;
 								sAddress = 'https://' + sAddress;
+								clSocketClient = require('socket.io-client').connect(sAddress, { secure: true });
 							}
 							else {
 								sAddress = 'http://' + sAddress;
+								clSocketClient = require('socket.io-client').connect(sAddress);
 							}
-
-							var clSocketClient = require('socket.io-client').connect(sAddress);
 
 							clSocketClient.on('connect', function () {
 

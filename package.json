@@ -13,7 +13,7 @@
     "q": "^1.4.1",
     "socket.io-client": "^1.3.6",
 
-    "simplefs": "^1.1.0",
+    "simplefs": "^1.2.1",
     "simplecontainer": "^1.1.1",
     "simpleconfig": "^1.2.0",
     "simplelogs": "^1.1.0"

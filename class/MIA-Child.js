@@ -1,8 +1,7 @@
 
 // dépendances
 	
-	const	q = require('q'),
-			exec = require('child_process').exec;
+	const exec = require('child_process').exec;
 		
 // module
 	
@@ -18,7 +17,7 @@
 				
 				this.start = function () {
 
-					var deferred = q.defer();
+					return new Promise(function(resolve, reject) {
 
 						try {
 
@@ -41,8 +40,8 @@
 								// start
 								
 								Container.get('miasocket').start()
-									.then(deferred.resolve)
-									.catch(deferred.reject);
+									.then(resolve)
+									.catch(reject);
 
 								// sockets
 									
@@ -65,7 +64,7 @@
 									}
 
 									socket.on('login.error', function(err) {
-										deferred.reject('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
+										reject('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
 									})
 
 									.on('logged', function(child) {
@@ -144,7 +143,7 @@
 
 										})
 										.catch(function(e) {
-											deferred.reject('-- [conf] ' + ((e.message) ? e.message : e));
+											reject('-- [conf] ' + ((e.message) ? e.message : e));
 										});
 
 									})
@@ -152,14 +151,14 @@
 								});
 				
 							})
-							.catch(deferred.reject);
+							.catch(reject);
 
 						}
 						catch (e) {
-							deferred.reject((e.message) ? e.message : e);
+							reject((e.message) ? e.message : e);
 						}
-						
-					return deferred.promise;
+
+					});
 
 				};
 				

@@ -1,8 +1,4 @@
 
-// dépendances
-	
-	const q = require('q');
-		
 // module
 	
 	module.exports = function (Container) {
@@ -18,8 +14,10 @@
 			// public
 				
 				this.start = function () {
+
+					return new Promise(function(resolve, reject) {
 					
-					var deferred = q.defer(), sAddress = Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport'), clSocketClient;
+						var sAddress = Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport'), clSocketClient;
 
 						try {
 
@@ -55,29 +53,29 @@
 
 							Container.get('logs').success('-- [MIA socket] started on ' + sAddress);
 							
-							deferred.resolve();
+							resolve();
 
 						}
 						catch (e) {
-							deferred.reject((e.message) ? e.message : e);
+							reject((e.message) ? e.message : e);
 						}
-						
-					return deferred.promise;
+
+					});
 
 				};
 				
 				this.stop = function () {
 
-					var deferred = q.defer();
+					return new Promise(function(resolve, reject) {
 
 						try {
-							deferred.resolve();
+							resolve();
 						}
 						catch (e) {
-							deferred.reject((e.message) ? e.message : e);	deferred.reject(e);
+							reject((e.message) ? e.message : e);
 						}
-						
-					return deferred.promise;
+
+					});
 
 				};
 				

@@ -1,21 +1,11 @@
 
-// dépendances
-	
-	var
-		path = require('path'),
-		q = require('q');
-		
 // module
 	
 	module.exports = function (Container) {
 
 		// attributes
 			
-			var
-				that = this,
-				conf = Container.get('conf'),
-				logs = Container.get('logs'),
-				m_clLog = new logs(path.join(__dirname, '..', 'socket')),
+			var that = this,
 				m_tabOnConnection = [],
 				m_tabOnDisconnect = [];
 
@@ -24,20 +14,30 @@
 			// public
 				
 				this.start = function () {
+
+					return new Promise(function(resolve, reject) {
 					
-					var deferred = q.defer(), sAddress = 'http' + ((conf.get('ssl')) ? 's' : '') + '://' + conf.get('miaip') + ':' + conf.get('miaport');
+						var sAddress = Container.get('conf').get('miaip') + ':' + Container.get('conf').get('miaport'), clSocketClient;
 
 						try {
 
-							var clSocketClient = require('socket.io-client').connect(sAddress);
+							if (Container.get('conf').get('ssl')) {
+								require('https').globalAgent.options.rejectUnauthorized = false;
+								sAddress = 'https://' + sAddress;
+								clSocketClient = require('socket.io-client').connect(sAddress, { secure: true });
+							}
+							else {
+								sAddress = 'http://' + sAddress;
+								clSocketClient = require('socket.io-client').connect(sAddress);
+							}
 
 							clSocketClient.on('connect', function () {
 
-								m_clLog.success('-- [MIA socket] connected');
+								Container.get('logs').success('-- [MIA socket] connected');
 
 								clSocketClient.on('disconnect', function () {
 
-									m_clLog.info('-- [MIA socket] disconnected');
+									Container.get('logs').info('-- [MIA socket] disconnected');
 
 									m_tabOnDisconnect.forEach(function (fOnDisconnect) {
 										fOnDisconnect(clSocketClient);
@@ -51,31 +51,31 @@
 								
 							});
 
-							m_clLog.success('-- [MIA socket] started on ' + sAddress);
+							Container.get('logs').success('-- [MIA socket] started on ' + sAddress);
 							
-							deferred.resolve();
+							resolve();
 
 						}
 						catch (e) {
-							deferred.reject((e.message) ? e.message : e);
+							reject((e.message) ? e.message : e);
 						}
-						
-					return deferred.promise;
+
+					});
 
 				};
 				
 				this.stop = function () {
 
-					var deferred = q.defer();
+					return new Promise(function(resolve, reject) {
 
 						try {
-							deferred.resolve();
+							resolve();
 						}
 						catch (e) {
-							deferred.reject((e.message) ? e.message : e);	deferred.reject(e);
+							reject((e.message) ? e.message : e);
 						}
-						
-					return deferred.promise;
+
+					});
 
 				};
 				

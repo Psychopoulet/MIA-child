@@ -1,10 +1,26 @@
 
+"use strict";
+
 // dépendances
 	
-	const exec = require('child_process').exec;
+	const 	path = require('path'),
+			exec = require('child_process').exec;
+
+// private
+
+	// attributes
+
+		var _TTSCmd;
 		
 // module
-	
+
+	if (-1 < require('os').type().toLowerCase().indexOf('windows')) {
+		_TTSCmd = require('path').join(__dirname, '..', 'batchs', 'ptts.vbs') + " -t";
+	}
+	else {
+		_TTSCmd = 'espeaks -v fr+f5 -k 5 -s 150 -a 10';
+	}
+
 	module.exports = function (Container) {
 
 		// attributes
@@ -137,6 +153,40 @@
 												}
 												catch(e) {
 													socket.emit('media.video.error', (e.message) ? e.message : e);
+												}
+						
+											})
+											.on('tts', function(text) {
+
+												try {
+
+													Container.get('logs').log('tts');
+
+													if (!text) {
+														Container.get('logs').err('Text missing');
+														socket.emit('tts.error', 'Text missing');
+													}
+													else {
+
+														exec(_TTSCmd + ' "' + text + '"', function (err, stdout, stderr) {
+
+															if (err) {
+																Container.get('logs').err((err.message) ? err.message : err);
+																socket.emit('tts.error', (err.message) ? err.message : err);
+															}
+															else {
+																Container.get('logs').info(text);
+																socket.emit('tts.read', text);
+															}
+
+														});
+
+													}
+
+												}
+												catch(e) {
+													Container.get('logs').err((e.message) ? e.message : e);
+													socket.emit('tts.error', (e.message) ? e.message : e);
 												}
 						
 											});

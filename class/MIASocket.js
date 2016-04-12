@@ -1,4 +1,6 @@
 
+"use strict";
+
 // module
 	
 	module.exports = function (Container) {

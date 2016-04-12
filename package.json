@@ -12,10 +12,10 @@
 
     "socket.io-client": "^1.3.6",
 
-    "simplefs": "^1.2.2",
+    "simplefs": "^1.3.0",
     "simplecontainer": "^1.1.2",
-    "simpleconfig": "^1.2.2",
-    "simplelogs": "^1.3.4"
+    "simpleconfig": "^1.2.3",
+    "simplelogs": "^1.3.5"
 
   },
   "devDependencies": {},

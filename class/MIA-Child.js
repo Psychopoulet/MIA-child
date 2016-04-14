@@ -4,22 +4,11 @@
 // dépendances
 	
 	const 	path = require('path'),
-			exec = require('child_process').exec;
+			exec = require('child_process').exec,
 
-// private
+			SimpleTTS = require('simpletts');
 
-	// attributes
-
-		var _TTSCmd;
-		
 // module
-
-	if (-1 < require('os').type().toLowerCase().indexOf('windows')) {
-		_TTSCmd = require('path').join(__dirname, '..', 'batchs', 'ptts.vbs') + " -t";
-	}
-	else {
-		_TTSCmd = 'espeaks -v fr+f5 -k 5 -s 150 -a 10';
-	}
 
 	module.exports = function (Container) {
 
@@ -168,17 +157,12 @@
 													}
 													else {
 
-														exec(_TTSCmd + ' "' + text + '"', function (err, stdout, stderr) {
-
-															if (err) {
-																Container.get('logs').err((err.message) ? err.message : err);
-																socket.emit('tts.error', (err.message) ? err.message : err);
-															}
-															else {
-																Container.get('logs').info(text);
-																socket.emit('tts.read', text);
-															}
-
+														SimpleTTS.read(text).then(function() {
+															Container.get('logs').info(text);
+															socket.emit('tts.read', text);
+														}).catch(function(err) {
+															Container.get('logs').err((err.message) ? err.message : err);
+															socket.emit('tts.error', (err.message) ? err.message : err);
 														});
 
 													}

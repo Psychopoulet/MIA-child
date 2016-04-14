@@ -1,10 +1,15 @@
 
+"use strict";
+
 // dépendances
 	
-	const exec = require('child_process').exec;
-		
+	const 	path = require('path'),
+			exec = require('child_process').exec,
+
+			SimpleTTS = require('simpletts');
+
 // module
-	
+
 	module.exports = function (Container) {
 
 		// attributes
@@ -137,6 +142,35 @@
 												}
 												catch(e) {
 													socket.emit('media.video.error', (e.message) ? e.message : e);
+												}
+						
+											})
+											.on('tts', function(text) {
+
+												try {
+
+													Container.get('logs').log('tts');
+
+													if (!text) {
+														Container.get('logs').err('Text missing');
+														socket.emit('tts.error', 'Text missing');
+													}
+													else {
+
+														SimpleTTS.read(text).then(function() {
+															Container.get('logs').info(text);
+															socket.emit('tts.read', text);
+														}).catch(function(err) {
+															Container.get('logs').err((err.message) ? err.message : err);
+															socket.emit('tts.error', (err.message) ? err.message : err);
+														});
+
+													}
+
+												}
+												catch(e) {
+													Container.get('logs').err((e.message) ? e.message : e);
+													socket.emit('tts.error', (e.message) ? e.message : e);
 												}
 						
 											});

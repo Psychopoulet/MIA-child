@@ -11,12 +11,13 @@
   "dependencies": {
 
     "socket.io-client": "^1.3.6",
+    "daemon": "^1.1.0",
 
     "simplefs": "^1.3.0",
     "simplecontainer": "^1.1.2",
     "simpleconfig": "^1.2.3",
     "simplelogs": "^1.3.5",
-    "simpletts": "^1.0.0"
+    "simpletts": "^1.0.1"
 
   },
   "devDependencies": {},

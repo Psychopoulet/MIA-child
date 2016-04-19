@@ -42,11 +42,10 @@
 
 								Container.get('logs').success('[START ' + process.pid + ']');
 
-								// start
-								
-								Container.get('miasocket').start()
-									.then(resolve)
-									.catch(reject);
+								// start sockets
+								return Container.get('miasocket').start();
+
+							}).then(function() {
 
 								// sockets
 									
@@ -69,7 +68,7 @@
 									}
 
 									socket.on('login.error', function(err) {
-										reject('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
+										Container.get('logs').error('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
 									})
 
 									.on('logged', function(child) {
@@ -210,15 +209,14 @@
 
 										})
 										.catch(function(e) {
-											reject('-- [conf] ' + ((e.message) ? e.message : e));
+											Container.get('logs').error('-- [conf] ' + ((e.message) ? e.message : e));
 										});
 
-									})
+									});
 
 								});
 				
-							})
-							.catch(reject);
+							}).catch(reject);
 
 						}
 						catch (e) {

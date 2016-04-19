@@ -42,11 +42,10 @@
 
 								Container.get('logs').success('[START ' + process.pid + ']');
 
-								// start
-								
-								Container.get('miasocket').start()
-									.then(resolve)
-									.catch(reject);
+								// start sockets
+								return Container.get('miasocket').start();
+
+							}).then(function() {
 
 								// sockets
 									
@@ -69,7 +68,7 @@
 									}
 
 									socket.on('login.error', function(err) {
-										reject('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
+										Container.get('logs').error('-- [MIA-Child] : login failed (' + ((err.message) ? err.message : err) + ')');
 									})
 
 									.on('logged', function(child) {
@@ -145,11 +144,45 @@
 												}
 						
 											})
-											.on('tts', function(text) {
+											
+											.on('tts.defaultvoice', function(defaultVoice) {
+
+												try {
+													Container.get('logs').log('tts.defaultvoice');
+													SimpleTTS.setDefaultVoice(defaultVoice);
+													socket.emit('tts.defaultvoice', defaultVoice);
+												}
+												catch(e) {
+													Container.get('logs').err((e.message) ? e.message : e);
+													socket.emit('tts.error', (e.message) ? e.message : e);
+												}
+						
+											})
+											.on('tts.voices', function() {
 
 												try {
 
-													Container.get('logs').log('tts');
+													Container.get('logs').log('tts.voices');
+
+													SimpleTTS.getVoices().then(function(voices) {
+														socket.emit('tts.voices', voices);
+													}).catch(function(err) {
+														Container.get('logs').err((err.message) ? err.message : err);
+														socket.emit('tts.error', (err.message) ? err.message : err);
+													});
+
+												}
+												catch(e) {
+													Container.get('logs').err((e.message) ? e.message : e);
+													socket.emit('tts.error', (e.message) ? e.message : e);
+												}
+						
+											})
+											.on('tts.read', function(text) {
+
+												try {
+
+													Container.get('logs').log('tts.read');
 
 													if (!text) {
 														Container.get('logs').err('Text missing');
@@ -158,7 +191,6 @@
 													else {
 
 														SimpleTTS.read(text).then(function() {
-															Container.get('logs').info(text);
 															socket.emit('tts.read', text);
 														}).catch(function(err) {
 															Container.get('logs').err((err.message) ? err.message : err);
@@ -177,15 +209,14 @@
 
 										})
 										.catch(function(e) {
-											reject('-- [conf] ' + ((e.message) ? e.message : e));
+											Container.get('logs').error('-- [conf] ' + ((e.message) ? e.message : e));
 										});
 
-									})
+									});
 
 								});
 				
-							})
-							.catch(reject);
+							}).catch(reject);
 
 						}
 						catch (e) {

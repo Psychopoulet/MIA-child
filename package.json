@@ -13,10 +13,9 @@
     "socket.io-client": "^1.3.6",
     "daemon": "^1.1.0",
 
-    "simplefs": "^1.3.0",
     "simplecontainer": "^1.1.2",
-    "simpleconfig": "^1.2.3",
-    "simplelogs": "^1.3.5",
+    "simpleconfig": "^1.2.4",
+    "simplelogs": "^2.0.0",
     "simpletts": "^1.1.0"
 
   },

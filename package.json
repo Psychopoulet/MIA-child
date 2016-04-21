@@ -14,8 +14,8 @@
     "daemon": "^1.1.0",
 
     "simplecontainer": "^1.1.2",
-    "simpleconfig": "^1.2.4",
-    "simplelogs": "^2.0.0",
+    "simpleconfig": "^1.2.5",
+    "simplelogs": "^2.0.1",
     "simpletts": "^1.1.0"
 
   },
